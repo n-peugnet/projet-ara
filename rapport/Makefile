@@ -1,10 +1,16 @@
-pdf:
-	latexmk -pdf -f
+FILES = rapport
+TEX = $(FILES:%=%.tex)
+PDF = $(FILES:%=%.pdf)
 
-clean:
+all: $(PDF)
+
+%.pdf: %.tex
+	latexmk -pdf -f $<
+
+cleantmp:
 	latexmk -c
 
-pdfclean:
+clean:
 	latexmk -C
 
-.PHONY: pdf clean pdfclean
+.PHONY: all cleantmp clean

@@ -1,3 +1,10 @@
+# Java files
+*.class
+
+# Usual files
+.env
+*.log
+
 # Editor files
 *.swp
 .vscode/*

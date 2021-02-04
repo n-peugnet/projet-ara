@@ -1,0 +1,7 @@
+{
+	"infra": {
+		"peersim": {
+			"properties": "peersim.properties"
+		}
+	}
+}
