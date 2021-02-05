@@ -16,7 +16,7 @@ CONFIG ?= ppi.json
 PROC   ?= ara.paxos.Paxos
 NP     ?= 4
 
-JAVAC_FLAGS += -cp $(PPI) -d $(BIN)
+JAVAC_FLAGS += -cp $(PPI):$(SRC) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI)
 PPI_FLAGS   += -c $(CONFIG) --np $(NP)
 

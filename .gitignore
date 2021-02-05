@@ -9,3 +9,4 @@
 *.swp
 .vscode/*
 !.vscode/extensions.json
+*.code-workspace
