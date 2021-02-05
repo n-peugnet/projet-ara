@@ -3,12 +3,10 @@ package ara.paxos;
 import org.sar.ppi.events.Message;
 
 public class Messages {
-	public static class Query extends Message {
+	public static class FindLeader extends Message {
 		private static final long serialVersionUID = 1L;
-		String val;
-		public Query(int src, int dest, String val) {
+		public FindLeader(int src, int dest) {
 			super(src, dest);
-			this.val = val;
 		}
 	}
 
@@ -61,8 +59,12 @@ public class Messages {
 
 	public static class Accept extends Message {
 		private static final long serialVersionUID = 1L;
-		public Accept(int src, int dest) {
+		int value;
+		int round;
+		public Accept(int src, int dest, int value, int round) {
 			super(src, dest);
+			this.value = value;
+			this.round = round;
 		}
 	}
 

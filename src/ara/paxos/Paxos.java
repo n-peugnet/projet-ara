@@ -1,34 +1,61 @@
 package ara.paxos;
 
 import org.sar.ppi.dispatch.MessageHandler;
+import org.sar.ppi.events.Message;
 
-import ara.paxos.Messages.Query;
+import ara.paxos.Messages.FindLeader;
 import ara.paxos.Messages.Leader;
 import ara.paxos.Messages.Prepare;
 import ara.paxos.Messages.Promise;
 import ara.paxos.Messages.Accept;
 import ara.paxos.Messages.Reject;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.lsmp.djep.vectorJep.function.VList;
 import org.sar.ppi.Infrastructure;
 import org.sar.ppi.NodeProcess;
 
 public class Paxos extends NodeProcess {
-	public static String FIND_LEADER = "findLeader";
+	public static int NULL = -1;
+
 
 	public static class Proposer {
-		/** -1 means no leader */
-		int leader = -1;
+		int leader = NULL;
+		int value = NULL;
 		int round = 0;
+		List<Message> received = new ArrayList<>();
+
+		public int promiseCount() {
+			int count = 0;
+			for (Message message : received) {
+				if (message instanceof Promise) {
+					count++;
+				}
+			}
+			return count;
+		}
+
+		public List<Promise> getPromises() {
+			List<Promise> promises = new ArrayList<>();
+			for (Message message : received) {
+				if (message instanceof Promise) {
+					promises.add((Promise) message);
+				}
+			}
+			return promises;
+		}
 	}
 
 	public static class Acceptor {
-		int acceptedValue = -1;
-		int acceptedRound = -1;
-		int maxReceivedRound = -1;
+		int acceptedValue = NULL;
+		int acceptedRound = NULL;
+		int maxReceivedRound = NULL;
 	}
 
 	public static class Learner {
-		int value = -1;
+		int value = NULL;
 	}
 
 	Proposer proposer = new Proposer();
@@ -37,19 +64,42 @@ public class Paxos extends NodeProcess {
 
 	@Override
 	public void init(String[] args) {
-		if (infra.getId() == 0)
-			infra.send(new Query(infra.getId(), infra.getId(), FIND_LEADER));
+		infra.send(new FindLeader(infra.getId(), infra.getId()));
 		System.out.println("Node " + infra.getId() + " is leader: " + (proposer.leader == infra.getId() ? "yes" : "no"));
 	}
 
+////////////////////////////////// PROPOSER ///////////////////////////////////////
+
 	@MessageHandler
-	public void processQuery(Query m) {
-		if (proposer.leader != -1) {
+	public void processFindLeader(FindLeader m) {
+		proposer.value = infra.getId();
+		if (proposer.leader != NULL) {
 			infra.send(new Leader(infra.getId(), m.getIdsrc(), proposer.leader));
-		} else {
-			for (int i = 0; i < infra.size(); i++) {
-				infra.send(new Prepare(infra.getId(), i, proposer.round));
+			return;
+		}
+		for (int i = 0; i < infra.size(); i++) {
+			infra.send(new Prepare(infra.getId(), i, proposer.round));
+		}
+		try {
+			infra.wait(() -> proposer.promiseCount() > infra.size() / 2);
+		} catch (InterruptedException e) {}
+		System.out.println("Node " + infra.getId() + " had enough promises");
+		List<Promise> promises = proposer.getPromises();
+		int maxRound = NULL;
+		int value = NULL;
+		for (Promise promise : promises) {
+			if (promise.acceptedValue != NULL && promise.acceptedRound > maxRound) {
+				value = promise.acceptedValue;
+				maxRound = promise.acceptedRound;
 			}
+		}
+		if (value != NULL) {
+			proposer.value = value;
+			//proposer.round = maxRound;
+		}
+		System.out.println("Node " + infra.getId() + " proposer value: " + proposer.value);
+		for (int i = 0; i < infra.size(); i++) {
+			// infra.send(new Accept(infra.getId(), i, proposer.value, proposer.round));
 		}
 	}
 
@@ -57,6 +107,20 @@ public class Paxos extends NodeProcess {
 	public void processLeader(Leader m) {
 		System.out.println("Node " + infra.getId() + " leader is: " + m.leader );
 	}
+
+	@MessageHandler
+	public void processPromise(Promise m) {
+		System.out.println("Node " + infra.getId() + " promise acceptedValue: " + m.acceptedValue + ", acceptedRound: " + m.acceptedRound);
+		proposer.received.add(m);
+	}
+
+	@MessageHandler
+	public void processReject(Reject m) {
+		System.out.println("Node " + infra.getId() + " reject maxReceivedRound: " + m.maxReceivedRound);
+	}
+
+
+////////////////////////////////// ACCEPTOR ///////////////////////////////////////
 
 	@MessageHandler
 	public void processPrepare(Prepare m) {
@@ -78,13 +142,6 @@ public class Paxos extends NodeProcess {
 		}
 	}
 
-	@MessageHandler
-	public void processPromise(Promise m) {
-		System.out.println("Node " + infra.getId() + " promise acceptedValue: " + m.acceptedValue + ", acceptedRound: " + m.acceptedRound);
-	}
+////////////////////////////////// LEARNER ///////////////////////////////////////
 
-	@MessageHandler
-	public void processReject(Reject m) {
-		System.out.println("Node " + infra.getId() + " reject maxReceivedRound: " + m.maxReceivedRound);
-	}
 }
