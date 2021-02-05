@@ -1,5 +1,7 @@
 {
 	"recommendations": [
-		"James-Yu.latex-workshop"
+		"james-yu.latex-workshop",
+		"redhat.java",
+		"vscjava.vscode-java-debug"
 	]
 }
