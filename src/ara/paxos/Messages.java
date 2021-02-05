@@ -70,8 +70,10 @@ public class Messages {
 
 	public static class Accepted extends Message {
 		private static final long serialVersionUID = 1L;
-		public Accepted(int src, int dest) {
+		int value;
+		public Accepted(int src, int dest, int value) {
 			super(src, dest);
+			this.value = value;
 		}
 	}
 }

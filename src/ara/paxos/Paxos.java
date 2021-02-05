@@ -8,13 +8,14 @@ import ara.paxos.Messages.Leader;
 import ara.paxos.Messages.Prepare;
 import ara.paxos.Messages.Promise;
 import ara.paxos.Messages.Accept;
+import ara.paxos.Messages.Accepted;
 import ara.paxos.Messages.Reject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.lsmp.djep.vectorJep.function.VList;
-import org.sar.ppi.Infrastructure;
 import org.sar.ppi.NodeProcess;
 
 public class Paxos extends NodeProcess {
@@ -56,6 +57,19 @@ public class Paxos extends NodeProcess {
 
 	public static class Learner {
 		int value = NULL;
+		Map<Integer,List<Accepted>> accepted = new HashMap<>();
+
+		public void addAccepted(Accepted m) {
+			if (!accepted.containsKey(m.value)) {
+				accepted.put(m.value, new ArrayList<>());
+			}
+			accepted.get(m.value).add(m);
+		}
+
+		public void reinit() {
+			accepted = new HashMap<>();
+			value = NULL;
+		}
 	}
 
 	Proposer proposer = new Proposer();
@@ -83,7 +97,7 @@ public class Paxos extends NodeProcess {
 		try {
 			infra.wait(() -> proposer.promiseCount() > infra.size() / 2);
 		} catch (InterruptedException e) {}
-		System.out.println("Node " + infra.getId() + " had enough promises");
+		System.out.println("Proposer " + infra.getId() + " had enough promises");
 		List<Promise> promises = proposer.getPromises();
 		int maxRound = NULL;
 		int value = NULL;
@@ -97,26 +111,26 @@ public class Paxos extends NodeProcess {
 			proposer.value = value;
 			//proposer.round = maxRound;
 		}
-		System.out.println("Node " + infra.getId() + " proposer value: " + proposer.value);
+		System.out.println("Proposer " + infra.getId() + " proposer value: " + proposer.value);
 		for (int i = 0; i < infra.size(); i++) {
-			// infra.send(new Accept(infra.getId(), i, proposer.value, proposer.round));
+			infra.send(new Accept(infra.getId(), i, proposer.value, proposer.round));
 		}
 	}
 
 	@MessageHandler
 	public void processLeader(Leader m) {
-		System.out.println("Node " + infra.getId() + " leader is: " + m.leader );
+		System.out.println("Proposer " + infra.getId() + " leader is: " + m.leader );
 	}
 
 	@MessageHandler
 	public void processPromise(Promise m) {
-		System.out.println("Node " + infra.getId() + " promise acceptedValue: " + m.acceptedValue + ", acceptedRound: " + m.acceptedRound);
+		System.out.println("Proposer " + infra.getId() + " promise acceptedValue: " + m.acceptedValue + ", acceptedRound: " + m.acceptedRound);
 		proposer.received.add(m);
 	}
 
 	@MessageHandler
 	public void processReject(Reject m) {
-		System.out.println("Node " + infra.getId() + " reject maxReceivedRound: " + m.maxReceivedRound);
+		System.out.println("Proposer " + infra.getId() + " reject maxReceivedRound: " + m.maxReceivedRound);
 	}
 
 
@@ -124,7 +138,7 @@ public class Paxos extends NodeProcess {
 
 	@MessageHandler
 	public void processPrepare(Prepare m) {
-		System.out.println("Node " + infra.getId() + " receive prepare: " + m.round );
+		System.out.println("Acceptor " + infra.getId() + " receive prepare: " + m.round );
 		if (m.round > acceptor.maxReceivedRound) {
 			acceptor.maxReceivedRound = m.round;
 			infra.send(new Promise(
@@ -142,6 +156,32 @@ public class Paxos extends NodeProcess {
 		}
 	}
 
-////////////////////////////////// LEARNER ///////////////////////////////////////
+	@MessageHandler
+	public void processAccept(Accept m) {
+		System.out.println("Acceptor " + infra.getId() + " accept value: " + m.value + ", round: " + m.round);
+		if (m.round >= acceptor.maxReceivedRound) {
+			acceptor.acceptedValue = m.value;
+		}
+		for (int i = 0; i < infra.size(); i++) {
+			infra.send(new Accepted(infra.getId(), i, acceptor.acceptedValue));
+		}
+	}
 
+////////////////////////////////// LEARNER ////////////////////////////////////////
+
+	@MessageHandler
+	public void processAccepted(Accepted m) {
+		System.out.println("Learner " + infra.getId() + " accepted value: " + m.value + ", from: " + m.getIdsrc());
+		learner.addAccepted(m);
+		for (Integer val : learner.accepted.keySet()) {
+			if (learner.accepted.get(val).size() > infra.size() / 2) {
+				learner.value = val;
+				break;
+			}
+		}
+		if (learner.value != NULL) {
+			System.out.println("Learner " + infra.getId() + " had enough accepted, value: " + learner.value);
+			learner.reinit();
+		}
+	}
 }
