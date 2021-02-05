@@ -2,7 +2,6 @@ include .env
 
 JAVAC ?= javac
 JAVA  ?= java
-JAR   ?= jar
 SRC   ?= src
 BIN   ?= bin
 LIB   ?= lib
@@ -47,5 +46,3 @@ $(BIN):
 
 %:
 	touch $@
-
-.PHONY: $(SUBDIRS)

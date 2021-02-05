@@ -78,6 +78,7 @@ public class Paxos extends NodeProcess {
 
 	@Override
 	public void init(String[] args) {
+		proposer.round = infra.getId();
 		infra.send(new FindLeader(infra.getId(), infra.getId()));
 		System.out.println("Node " + infra.getId() + " is leader: " + (proposer.leader == infra.getId() ? "yes" : "no"));
 	}
