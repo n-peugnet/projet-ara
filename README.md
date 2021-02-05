@@ -4,13 +4,25 @@ This project uses `make` for every possible tasks.
 The root Makefile loads variables from the `.env` file.
 This is an easy way to override every varibles defined with `?=`.
 
-## Build all
+## Simulations
 
-    make
+### Build only
 
-## Run a simulation using [`ppi`][ppi] with PeerSimRunner
+    make java
+
+### Run a simulation using [`ppi`][ppi] with PeerSimRunner
 
     make run [NP=5] [PROC=ara.paxos.Paxos]
+
+## PDF
+
+### Install latex
+
+    sudo apt install texlive latexmk texlive-lang-french cm-super
+
+### Render pdf
+
+    make pdf
 
 
 [ppi]: https://github.com/PolyProcessInterface/ppi

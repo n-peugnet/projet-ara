@@ -2,7 +2,7 @@ FILES = rapport
 TEX = $(FILES:%=%.tex)
 PDF = $(FILES:%=%.pdf)
 
-all: $(PDF)
+pdf: $(PDF)
 
 %.pdf: %.tex
 	latexmk -pdf -f $<
@@ -13,4 +13,4 @@ cleantmp:
 clean:
 	latexmk -C
 
-.PHONY: all cleantmp clean
+.PHONY: pdf cleantmp clean
