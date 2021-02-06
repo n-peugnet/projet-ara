@@ -9,6 +9,7 @@ BIN   ?= bin
 LIB   ?= lib
 PDF   ?= pdf
 PPI   ?= $(LIB)/ppi.jar
+JAVAP ?= $(LIB)/JavaPlot.jar
 
 SRCS = $(shell find $(SRC) -name '*.java')
 BINS = $(SRCS:$(SRC)/%.java=$(BIN)/%.class)
@@ -19,15 +20,13 @@ PROC   ?= ara.paxos.Paxos
 NP     ?= 5
 RUNNER ?= peersim.PeerSimRunner
 
-JAVAC_FLAGS += -cp $(PPI):$(SRC) -d $(BIN)
-JAVA_FLAGS  += -cp $(BIN):$(PPI)
+JAVAC_FLAGS += -cp $(PPI):$(SRC):$(JAVAP) -d $(BIN)
+JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
 
-
-PLOTS = ex1nodes ex1backoff
+PLOTS = ex1nodes
 IMGS  = $(PLOTS:%=%.png)
 DATAS = $(PLOTS:%=%.dat)
-
 
 all: pdf java
 
@@ -49,9 +48,20 @@ clean: $(SUBDIRS)
 
 .PHONY: all pdf java plots run clean
 
-%.png: %.dat java
+#%.png: %.dat java
 # while the plot is not finished
-	cp $< $@
+#	cp $< $@
+
+# $* ce qu'à matché %
+# $@ c'est la target, donc le nom du png
+# $< c'est la première deps donc le nom du fichier de données
+# Exemple :
+# $* = ex1nodes
+# $@ = ex1nodes.png
+# $< = ex1nodes.dat
+%.png: %.dat java
+	$(JAVA) $(JAVA_FLAGS) ara.graphi.Main $* $@ $<
+
 
 %.dat: PEERSIM_PROPERTIES = $*.properties
 %.dat: java
