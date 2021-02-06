@@ -4,7 +4,10 @@
 # Usual files
 .env
 *.log
+
+# Plot files
 *.dat
+*.png
 
 # Editor files
 *.swp

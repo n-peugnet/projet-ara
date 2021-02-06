@@ -13,13 +13,13 @@ import peersim.core.Fallible;
 import peersim.core.Network;
 import peersim.core.Node;
 
-public class EndController implements Control {
+public class Ex1NodesEnd implements Control {
 
 	private static final String PAR_PROTO_INFRA="infra";
 	
 	private final int pid_infra;
 	
-	public EndController(String prefix) {
+	public Ex1NodesEnd(String prefix) {
 		pid_infra=Configuration.getPid(prefix+"."+PAR_PROTO_INFRA);
 	}
 	
@@ -36,12 +36,12 @@ public class EndController implements Control {
 			Node node = Network.get(i);
 			PeerSimInfrastructure infra = (PeerSimInfrastructure) node.getProtocol(pid_infra);
 			Paxos process = (Paxos)infra.getProcess();
-			System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + (node.getFailState()==Fallible.OK ? "alive" : "dead") + ")");
+			// System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + (node.getFailState()==Fallible.OK ? "alive" : "dead") + ")");
 			messageCount += process.messageCount;
-			roundCount += process.proposer.round;
+			roundCount = process.proposer.round; // TODO: choose and find the real number of rounds.
 		}
 
-		try (Writer file = new FileWriter("nodecount.dat", true)) {
+		try (Writer file = new FileWriter("ex1nodes.dat", true)) {
 			file.write("" + size + "," + messageCount + "," + roundCount + "," + time + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();

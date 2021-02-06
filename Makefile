@@ -1,5 +1,7 @@
 include .env
 
+SHELL = /bin/bash
+
 JAVAC ?= javac
 JAVA  ?= java
 SRC   ?= src
@@ -11,14 +13,20 @@ PPI   ?= $(LIB)/ppi.jar
 SRCS = $(shell find $(SRC) -name '*.java')
 BINS = $(SRCS:$(SRC)/%.java=$(BIN)/%.class)
 
-CONFIG ?= ppi.json
+PEERSIM_PROPERTIES ?= ex1nodes.properties
+CONFIG ?= '{"infra": {"peersim": {"properties": "$(PEERSIM_PROPERTIES)"}}}'
 PROC   ?= ara.paxos.Paxos
 NP     ?= 5
 RUNNER ?= peersim.PeerSimRunner
 
 JAVAC_FLAGS += -cp $(PPI):$(SRC) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI)
-PPI_FLAGS   += -c $(CONFIG) --np $(NP)
+PPI_FLAGS   += -j $(CONFIG) --np $(NP)
+
+
+PLOTS = ex1nodes
+IMGS  = $(PLOTS:%=%.png)
+DATAS = $(PLOTS:%=%.dat)
 
 
 all: pdf java
@@ -27,6 +35,8 @@ pdf:
 	$(MAKE) -C $(PDF) $@
 
 java: $(BINS)
+
+plots: $(IMGS) ;
 
 run: java
 	$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi $(PPI_FLAGS) $(PROC) org.sar.ppi.$(RUNNER)
@@ -37,7 +47,17 @@ clean: $(SUBDIRS)
 	rm -rf *.log
 	$(MAKE) -C $(PDF) $@
 
-.PHONY: all pdf java run clean
+.PHONY: all pdf java plots run clean
+
+%.png: %.dat java
+# while the plot is not finished
+	cp $< $@
+
+%.dat: PEERSIM_PROPERTIES = $*.properties
+%.dat: java
+	for i in $$(seq 4 9); do \
+		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER); \
+	done;
 
 $(BIN)/%.class: $(SRC)/%.java | $(BIN)
 	$(JAVAC) $(JAVAC_FLAGS) $<
