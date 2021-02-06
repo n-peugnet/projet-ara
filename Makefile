@@ -13,7 +13,7 @@ BINS = $(SRCS:$(SRC)/%.java=$(BIN)/%.class)
 
 CONFIG ?= ppi.json
 PROC   ?= ara.paxos.Paxos
-NP     ?= 4
+NP     ?= 5
 
 JAVAC_FLAGS += -cp $(PPI):$(SRC) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI)

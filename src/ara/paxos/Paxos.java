@@ -35,8 +35,20 @@ public class Paxos extends NodeProcess {
 		/** MaValeur, valeur proposée */
 		int value = NULL;
 
-		/**  MonNuméroRound = (nombre à définir : (0) ou (identifiant noeud)) */
+		/** MonNuméroRound = (nombre à définir : (0) ou (identifiant noeud)) */
 		int round = 0;
+
+		/** Delai avant l'abandon de l'attente de Promise (ou de Reject) */
+		int timeout = 1000;
+
+		/** Delai avant le nouvel essai d'envoi de Prepare */
+		int backoff = 1000;
+
+		/** Nombre de fois où on a essayé d'envoyer à nouveau un Prepare */
+		int retry = 0;
+
+		/** Nombre maximum d'essais d'envoi de Prepare */
+		int maxRetry = 3;
 
 		/** ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ; */
 		List<Message> received = new ArrayList<>(); // ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ;
@@ -48,7 +60,7 @@ public class Paxos extends NodeProcess {
 				if (message instanceof Promise) {
 					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
 					if (ONLY_COUNT_MY_ROUND) {
-						if (((Promise) message).maxReceivedRound == round)
+						if (((Promise) message).responseRound == round)
 							count++;
 					} else {
 						// Comptabiliser tous les promise
@@ -58,6 +70,44 @@ public class Paxos extends NodeProcess {
 				}
 			}
 			return count;
+		}
+
+		/** Retourne le nombre de Reject reçus */
+		public int rejectCount() {
+			int count = 0;
+			for (Message message : received) {
+				if (message instanceof Reject) {
+					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
+					if (ONLY_COUNT_MY_ROUND) {
+						if (((Reject) message).responseRound == round)
+							count++;
+					} else {
+						// Comptabiliser tous les promise
+						count++;
+					}
+					
+				}
+			}
+			return count;
+		}
+
+		public int rejectsMaxRound() {
+			int max = NULL;
+			Reject r;
+			for (Message message : received) {
+				if (message instanceof Reject) {
+					r = (Reject) message;
+					if (r.maxReceivedRound > max) max = r.maxReceivedRound;
+				}
+			}
+			return max;
+		}
+
+		public int chooseNextRound() {
+			int max = rejectsMaxRound();
+			if (round > max) max = round;
+			max++;
+			return max;
 		}
 
 		/** Récupérer tous les promise reçus */
@@ -73,7 +123,7 @@ public class Paxos extends NodeProcess {
 					
 					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
 					if (ONLY_COUNT_MY_ROUND) {
-						if ((promise).maxReceivedRound == round)
+						if ((promise).responseRound == round)
 							promises.add(promise);
 					} else {
 						// Comptabiliser tous les promise
@@ -118,7 +168,7 @@ public class Paxos extends NodeProcess {
 
 	@Override
 	public void init(String[] args) {
-		// proposer.round = infra.getId();
+		proposer.round = infra.getId();
 		learnerThread = infra.serialThreadRun(() -> waitForAccepteds());
 		proposerThread = infra.serialThreadRun(() -> selfFindLeader());
 	}
@@ -154,12 +204,21 @@ public class Paxos extends NodeProcess {
 		 * Une majorité de Reject ou un timeout doivent générer soit un arrêt du proposer,
 		 * soit une mise à jour du numéro de round + backoff + tenter à nouveau.
 		 */
+		int maj = infra.size() / 2;
+		boolean success = false;
 		try {
-			infra.wait(() -> proposer.promiseCount() > infra.size() / 2);
-			//infra.waitFor(arg0, arg1);
+			success = infra.waitFor(() -> proposer.promiseCount() > maj || proposer.rejectCount() > maj, proposer.timeout);
 		} catch (InterruptedException e) {
-			System.out.println("Proposer " + infra.getId() + " did not have enough promises");
-			// TODO : gérer ce cas comme décrit juste au-dessus
+			System.out.println("Proposer " + infra.getId() + " was interrupted while waiting");
+		}
+		if (!success || proposer.rejectCount() > maj) {
+			if (proposer.retry == proposer.maxRetry) {
+				return;
+			}
+			proposer.round = proposer.chooseNextRound();
+			proposer.retry++;
+			infra.scheduleCall("processFindLeader", new Object[] {m}, proposer.backoff);
+			return;
 		}
 
 		/** Le proposer a assez de promesses, il peut continuer */
@@ -220,9 +279,9 @@ public class Paxos extends NodeProcess {
 			infra.send(new Promise(
 				infra.getId(),
 				m.getIdsrc(),
-				acceptor.acceptedValue, // ValeurDéjàAcceptée 
+				acceptor.acceptedValue, // ValeurDéjàAcceptée
 				acceptor.acceptedRound, // NuméroDeRoundAssocié
-				acceptor.maxReceivedRound // NuméroDeRoundMaxReçu
+				m.round                 // NuméroDeRoundAuquelOnRépond
 			));
 		} else {
 			/** Son numéro de round n'est pas valide,
@@ -231,7 +290,8 @@ public class Paxos extends NodeProcess {
 			infra.send(new Reject(
 				infra.getId(),
 				m.getIdsrc(),
-				acceptor.maxReceivedRound // NuméroDeRoundMaxReçu
+				acceptor.maxReceivedRound, // NuméroDeRoundMaxReçu
+				m.round                   // NuméroDeRoundAuquelOnRépond
 			));
 		}
 	}

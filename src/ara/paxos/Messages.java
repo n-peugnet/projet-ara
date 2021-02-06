@@ -41,21 +41,23 @@ public class Messages {
 		private static final long serialVersionUID = 1L;
 		int acceptedValue;
 		int acceptedRound;
-		int maxReceivedRound;
-		public Promise(int src, int dest, int acceptedValue, int acceptedRound, int maxReceivedRound) {
+		int responseRound;
+		public Promise(int src, int dest, int acceptedValue, int acceptedRound, int responseRound) {
 			super(src, dest);
 			this.acceptedValue = acceptedValue;
 			this.acceptedRound = acceptedRound;
-			this.maxReceivedRound = maxReceivedRound;
+			this.responseRound = responseRound;
 		}
 	}
 
 	public static class Reject extends Message {
 		private static final long serialVersionUID = 1L;
 		int maxReceivedRound;
-		public Reject(int src, int dest, int maxReceivedRound) {
+		int responseRound;
+		public Reject(int src, int dest, int maxReceivedRound, int responseRound) {
 			super(src, dest);
 			this.maxReceivedRound = maxReceivedRound;
+			this.responseRound = responseRound;
 		}
 	}
 
