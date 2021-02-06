@@ -60,7 +60,7 @@ clean: $(SUBDIRS)
 # $@ = ex1nodes.png
 # $< = ex1nodes.dat
 %.png: %.dat java
-	$(JAVA) $(JAVA_FLAGS) ara.graphi.Main $* $@ $<
+	$(JAVA) $(JAVA_FLAGS) ara.graphi.SimpleGraphMaker $* $@ $<
 
 
 %.dat: PEERSIM_PROPERTIES = $*.properties
