@@ -41,10 +41,12 @@ public class Messages {
 		private static final long serialVersionUID = 1L;
 		int acceptedValue;
 		int acceptedRound;
-		public Promise(int src, int dest, int acceptedValue, int acceptedRound) {
+		int maxReceivedRound;
+		public Promise(int src, int dest, int acceptedValue, int acceptedRound, int maxReceivedRound) {
 			super(src, dest);
 			this.acceptedValue = acceptedValue;
 			this.acceptedRound = acceptedRound;
+			this.maxReceivedRound = maxReceivedRound;
 		}
 	}
 
