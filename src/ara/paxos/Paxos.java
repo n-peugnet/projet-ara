@@ -180,7 +180,8 @@ public class Paxos extends NodeProcess {
 				messageCount++;
 				infra.send(new Accepted(infra.getId(), i, acceptor.acceptedValue));
 			}
-		/** On doit aussi envoyer un  */
+		/** Question :
+		 *  est-ce qu'on envoie aussi un message au proposer pour lui dire que sa requête a été validée ? */
 		} else {
 			/** On ignore le message si le numéro de round est trop faible */
 		}
