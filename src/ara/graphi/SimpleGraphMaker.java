@@ -1,9 +1,10 @@
+package ara.graphi;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,13 @@ import com.panayotis.gnuplot.terminal.SVGTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal; // ExpandableTerminal
 
 class SimpleGraphMaker {
+
+    public static void main(String[] args) {
+        String name = args[0];
+        String image = args[1];
+        String datas = args[2];
+        System.out.printf("%s, %s, %s\n", name, image, datas);
+    }
 
     /** Exemple simple d'utilisation */
     public static void simpleUsageExample() {

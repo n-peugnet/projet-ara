@@ -20,7 +20,7 @@ PROC   ?= ara.paxos.Paxos
 NP     ?= 5
 RUNNER ?= peersim.PeerSimRunner
 
-JAVAC_FLAGS += -cp $(PPI):$(SRC):$(JAVAP) -d $(BIN)
+JAVAC_FLAGS += -cp $(SRC):$(PPI):$(JAVAP) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
 
@@ -44,6 +44,8 @@ clean: $(SUBDIRS)
 	rm -rf $(EXE)
 	rm -rf $(BIN)
 	rm -rf *.log
+	rm -rf *.dat
+	rm -rf *.png
 	$(MAKE) -C $(PDF) $@
 
 .PHONY: all pdf java plots run clean
@@ -59,12 +61,12 @@ clean: $(SUBDIRS)
 # $* = ex1nodes
 # $@ = ex1nodes.png
 # $< = ex1nodes.dat
-%.png: %.dat java
+$(IMGS): %.png: %.dat java
 	$(JAVA) $(JAVA_FLAGS) ara.graphi.SimpleGraphMaker $* $@ $<
 
 
-%.dat: PEERSIM_PROPERTIES = $*.properties
-%.dat: java
+$(DATAS): PEERSIM_PROPERTIES = $*.properties
+$(DATAS): %.dat: java
 	rm -rf $*.log
 	for i in $$(seq 4 10) 15; do \
 		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) >> $*.log 2> /dev/null; \
