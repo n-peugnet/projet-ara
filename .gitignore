@@ -4,6 +4,7 @@
 # Usual files
 .env
 *.log
+*.dat
 
 # Editor files
 *.swp

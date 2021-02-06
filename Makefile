@@ -14,6 +14,7 @@ BINS = $(SRCS:$(SRC)/%.java=$(BIN)/%.class)
 CONFIG ?= ppi.json
 PROC   ?= ara.paxos.Paxos
 NP     ?= 5
+RUNNER ?= peersim.PeerSimRunner
 
 JAVAC_FLAGS += -cp $(PPI):$(SRC) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI)
@@ -28,7 +29,7 @@ pdf:
 java: $(BINS)
 
 run: java
-	$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi $(PPI_FLAGS) $(PROC) org.sar.ppi.peersim.PeerSimRunner
+	$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi $(PPI_FLAGS) $(PROC) org.sar.ppi.$(RUNNER)
 
 clean: $(SUBDIRS)
 	rm -rf $(EXE)

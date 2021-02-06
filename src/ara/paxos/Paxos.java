@@ -48,7 +48,7 @@ public class Paxos extends NodeProcess {
 		int retry = 0;
 
 		/** Nombre maximum d'essais d'envoi de Prepare */
-		int maxRetry = 3;
+		int maxRetry = 100;
 
 		/** ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ; */
 		List<Message> received = new ArrayList<>(); // ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ;
@@ -165,6 +165,7 @@ public class Paxos extends NodeProcess {
 	Acceptor acceptor = new Acceptor();
 	Learner learner = new Learner();
 	Thread learnerThread, proposerThread;
+	int messageCount = 0;
 
 	@Override
 	public void init(String[] args) {
@@ -176,6 +177,7 @@ public class Paxos extends NodeProcess {
 ////////////////////////////////// PROPOSER ///////////////////////////////////////
 
 	public void selfFindLeader() {
+		messageCount++;
 		infra.send(new FindLeader(infra.getId(), infra.getId()));
 	}
 
@@ -189,12 +191,14 @@ public class Paxos extends NodeProcess {
 
 		/** pas compris ce qu'il fait là ? */
 		if (proposer.leader != NULL) {
+			messageCount++;
 			infra.send(new Leader(infra.getId(), m.getIdsrc(), proposer.leader));
 			return;
 		}
 
 		/** Etape 1a - Envoi d'un message prepare à tous les Acceptors */
 		for (int i = 0; i < infra.size(); i++) {
+			messageCount++;
 			infra.send(new Prepare(infra.getId(), i, proposer.round));
 		}
 
@@ -245,6 +249,7 @@ public class Paxos extends NodeProcess {
 		System.out.println("Proposer " + infra.getId() + " proposer value: " + proposer.value);
 		/** Etape 2a - Envoyer à tous les Acceptors Accept(e, n = NuméroRound)  */
 		for (int i = 0; i < infra.size(); i++) {
+			messageCount++;
 			infra.send(new Accept(infra.getId(), i, proposer.value, proposer.round));
 		}
 	}
@@ -276,6 +281,7 @@ public class Paxos extends NodeProcess {
 		if (m.round > acceptor.maxReceivedRound) {
 			acceptor.maxReceivedRound = m.round;
 			/** Réponse au Proposer qui nous a envoyé le message */
+			messageCount++;
 			infra.send(new Promise(
 				infra.getId(),
 				m.getIdsrc(),
@@ -287,6 +293,7 @@ public class Paxos extends NodeProcess {
 			/** Son numéro de round n'est pas valide,
 			 *  s'il veut participer il devra mettre à jour sa valeur et passer
 			 *  au minimum à acceptor.maxReceivedRound + 1. */
+			messageCount++;
 			infra.send(new Reject(
 				infra.getId(),
 				m.getIdsrc(),
@@ -308,6 +315,7 @@ public class Paxos extends NodeProcess {
 			acceptor.acceptedRound = m.round;
 			/** Envoi de Accepted(m.value) à tous les Learners */
 			for (int i = 0; i < infra.size(); i++) {
+				messageCount++;
 				infra.send(new Accepted(infra.getId(), i, acceptor.acceptedValue));
 			}
 		/** On doit aussi envoyer un  */
