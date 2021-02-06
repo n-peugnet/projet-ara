@@ -1,4 +1,4 @@
-package ara.paxos;
+package ara.control;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.Writer;
 
 import org.sar.ppi.peersim.PeerSimInfrastructure;
 
+import ara.paxos.Paxos;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Control;

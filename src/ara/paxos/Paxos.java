@@ -1,7 +1,6 @@
 package ara.paxos;
 
 import org.sar.ppi.dispatch.MessageHandler;
-import org.sar.ppi.events.Message;
 
 import ara.paxos.Messages.FindLeader;
 import ara.paxos.Messages.Leader;
@@ -11,10 +10,7 @@ import ara.paxos.Messages.Accept;
 import ara.paxos.Messages.Accepted;
 import ara.paxos.Messages.Reject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.sar.ppi.NodeProcess;
 
@@ -27,145 +23,11 @@ public class Paxos extends NodeProcess {
 
 	public static final boolean ONLY_COUNT_MY_ROUND = true;
 
-	public static class Proposer {
-
-		/** ?? (pas dans mon algo) valeur finale du leader, décidée et immuable */
-		int leader = NULL; 
-
-		/** MaValeur, valeur proposée */
-		int value = NULL;
-
-		/** MonNuméroRound = (nombre à définir : (0) ou (identifiant noeud)) */
-		int round = 0;
-
-		/** Delai avant l'abandon de l'attente de Promise (ou de Reject) */
-		int timeout = 1000;
-
-		/** Delai avant le nouvel essai d'envoi de Prepare */
-		int backoff = 1000;
-
-		/** Nombre de fois où on a essayé d'envoyer à nouveau un Prepare */
-		int retry = 0;
-
-		/** Nombre maximum d'essais d'envoi de Prepare */
-		int maxRetry = 100;
-
-		/** ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ; */
-		List<Message> received = new ArrayList<>(); // ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ;
-
-		/** Retourne le nombre de Promise reçus */
-		public int promiseCount() {
-			int count = 0;
-			for (Message message : received) {
-				if (message instanceof Promise) {
-					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
-					if (ONLY_COUNT_MY_ROUND) {
-						if (((Promise) message).responseRound == round)
-							count++;
-					} else {
-						// Comptabiliser tous les promise
-						count++;
-					}
-					
-				}
-			}
-			return count;
-		}
-
-		/** Retourne le nombre de Reject reçus */
-		public int rejectCount() {
-			int count = 0;
-			for (Message message : received) {
-				if (message instanceof Reject) {
-					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
-					if (ONLY_COUNT_MY_ROUND) {
-						if (((Reject) message).responseRound == round)
-							count++;
-					} else {
-						// Comptabiliser tous les promise
-						count++;
-					}
-					
-				}
-			}
-			return count;
-		}
-
-		public int rejectsMaxRound() {
-			int max = NULL;
-			Reject r;
-			for (Message message : received) {
-				if (message instanceof Reject) {
-					r = (Reject) message;
-					if (r.maxReceivedRound > max) max = r.maxReceivedRound;
-				}
-			}
-			return max;
-		}
-
-		public int chooseNextRound() {
-			int max = rejectsMaxRound();
-			if (round > max) max = round;
-			max++;
-			return max;
-		}
-
-		/** Récupérer tous les promise reçus */
-		public List<Promise> getPromises() {
-
-			List<Promise> promises = new ArrayList<>();
-
-			for (Message message : received) {
-
-				if (message instanceof Promise) {
-
-					Promise promise = (Promise) message;
-					
-					// Ne comptabiliser que les promise correspondant à mon numéro de round actuel
-					if (ONLY_COUNT_MY_ROUND) {
-						if ((promise).responseRound == round)
-							promises.add(promise);
-					} else {
-						// Comptabiliser tous les promise
-						promises.add(promise);
-					}
-				}
-			}
-			return promises;
-		}
-	}
-
-	public static class Acceptor {
-		/** Valeur déjà acceptée */
-		int acceptedValue = NULL;
-		/** Round associé à la valeur acceptée */
-		int acceptedRound = NULL;
-		/** Round maximal reçu dans un message */
-		int maxReceivedRound = NULL;
-	}
-
-	public static class Learner {
-		int value = NULL;
-		Map<Integer, List<Accepted>> accepted = new HashMap<>();
-
-		public void addAccepted(Accepted m) {
-			if (!accepted.containsKey(m.value)) {
-				accepted.put(m.value, new ArrayList<>());
-			}
-			accepted.get(m.value).add(m);
-		}
-
-		public void reinit() {
-			accepted = new HashMap<>();
-			value = NULL;
-		}
-	}
-
-	Proposer proposer = new Proposer();
-	Acceptor acceptor = new Acceptor();
-	Learner learner = new Learner();
-	Thread learnerThread, proposerThread;
-	int messageCount = 0;
+	public Proposer proposer = new Proposer();
+	public Acceptor acceptor = new Acceptor();
+	public Learner learner = new Learner();
+	public Thread learnerThread, proposerThread;
+	public int messageCount = 0;
 
 	@Override
 	public void init(String[] args) {

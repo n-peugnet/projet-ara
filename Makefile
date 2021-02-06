@@ -24,7 +24,7 @@ JAVA_FLAGS  += -cp $(BIN):$(PPI)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
 
 
-PLOTS = ex1nodes
+PLOTS = ex1nodes ex1backoff
 IMGS  = $(PLOTS:%=%.png)
 DATAS = $(PLOTS:%=%.dat)
 
@@ -55,8 +55,9 @@ clean: $(SUBDIRS)
 
 %.dat: PEERSIM_PROPERTIES = $*.properties
 %.dat: java
+	rm -rf $*.log
 	for i in $$(seq 4 10) 15; do \
-		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER); \
+		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) >> $*.log 2> /dev/null; \
 	done;
 
 $(BIN)/%.class: $(SRC)/%.java | $(BIN)
