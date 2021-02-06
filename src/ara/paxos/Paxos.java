@@ -21,7 +21,6 @@ import org.sar.ppi.NodeProcess;
 public class Paxos extends NodeProcess {
 	public static int NULL = -1;
 
-
 	public static class Proposer {
 		int leader = NULL;
 		int value = NULL;
@@ -57,7 +56,7 @@ public class Paxos extends NodeProcess {
 
 	public static class Learner {
 		int value = NULL;
-		Map<Integer,List<Accepted>> accepted = new HashMap<>();
+		Map<Integer, List<Accepted>> accepted = new HashMap<>();
 
 		public void addAccepted(Accepted m) {
 			if (!accepted.containsKey(m.value)) {
@@ -78,7 +77,8 @@ public class Paxos extends NodeProcess {
 
 	@Override
 	public void init(String[] args) {
-		proposer.round = infra.getId();
+		infra.serialThreadRun(() -> waitForAccepteds());
+		// proposer.round = infra.getId();
 		infra.send(new FindLeader(infra.getId(), infra.getId()));
 		System.out.println("Node " + infra.getId() + " is leader: " + (proposer.leader == infra.getId() ? "yes" : "no"));
 	}
@@ -97,7 +97,9 @@ public class Paxos extends NodeProcess {
 		}
 		try {
 			infra.wait(() -> proposer.promiseCount() > infra.size() / 2);
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+			System.out.println("Proposer " + infra.getId() + " did not have enough promises");
+		}
 		System.out.println("Proposer " + infra.getId() + " had enough promises");
 		List<Promise> promises = proposer.getPromises();
 		int maxRound = NULL;
@@ -110,7 +112,7 @@ public class Paxos extends NodeProcess {
 		}
 		if (value != NULL) {
 			proposer.value = value;
-			//proposer.round = maxRound;
+			// proposer.round = maxRound;
 		}
 		System.out.println("Proposer " + infra.getId() + " proposer value: " + proposer.value);
 		for (int i = 0; i < infra.size(); i++) {
@@ -120,7 +122,7 @@ public class Paxos extends NodeProcess {
 
 	@MessageHandler
 	public void processLeader(Leader m) {
-		System.out.println("Proposer " + infra.getId() + " leader is: " + m.leader );
+		System.out.println("Proposer " + infra.getId() + " leader is: " + m.leader);
 	}
 
 	@MessageHandler
@@ -139,7 +141,7 @@ public class Paxos extends NodeProcess {
 
 	@MessageHandler
 	public void processPrepare(Prepare m) {
-		System.out.println("Acceptor " + infra.getId() + " receive prepare: " + m.round );
+		System.out.println("Acceptor " + infra.getId() + " receive prepare: " + m.round);
 		if (m.round > acceptor.maxReceivedRound) {
 			acceptor.maxReceivedRound = m.round;
 			infra.send(new Promise(
@@ -180,9 +182,14 @@ public class Paxos extends NodeProcess {
 				break;
 			}
 		}
-		if (learner.value != NULL) {
-			System.out.println("Learner " + infra.getId() + " had enough accepted, value: " + learner.value);
-			learner.reinit();
+	}
+
+	public void waitForAccepteds() {
+		try {
+			infra.wait(() -> learner.value != NULL);
+		} catch (InterruptedException e) {
+			System.out.println("Learner " + infra.getId() + " did not have enough accepted");
 		}
+		System.out.println("Learner " + infra.getId() + " had enough accepted, value: " + learner.value);
 	}
 }
