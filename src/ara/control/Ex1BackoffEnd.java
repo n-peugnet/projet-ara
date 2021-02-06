@@ -43,7 +43,7 @@ public class Ex1BackoffEnd implements Control {
 		}
 		roundCount /= size;
 
-		try (Writer file = new FileWriter("ex1nodes.dat", true)) {
+		try (Writer file = new FileWriter("ex1backoff.dat", true)) {
 			file.write("" + size + "," + messageCount + "," + roundCount + "," + time + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();
