@@ -74,16 +74,20 @@ public class Paxos extends NodeProcess {
 	Proposer proposer = new Proposer();
 	Acceptor acceptor = new Acceptor();
 	Learner learner = new Learner();
+	Thread learnerThread, proposerThread;
 
 	@Override
 	public void init(String[] args) {
-		infra.serialThreadRun(() -> waitForAccepteds());
 		// proposer.round = infra.getId();
-		infra.send(new FindLeader(infra.getId(), infra.getId()));
-		System.out.println("Node " + infra.getId() + " is leader: " + (proposer.leader == infra.getId() ? "yes" : "no"));
+		learnerThread = infra.serialThreadRun(() -> waitForAccepteds());
+		proposerThread = infra.serialThreadRun(() -> selfFindLeader());
 	}
 
 ////////////////////////////////// PROPOSER ///////////////////////////////////////
+
+	public void selfFindLeader() {
+		infra.send(new FindLeader(infra.getId(), infra.getId()));
+	}
 
 	@MessageHandler
 	public void processFindLeader(FindLeader m) {
@@ -191,5 +195,6 @@ public class Paxos extends NodeProcess {
 			System.out.println("Learner " + infra.getId() + " did not have enough accepted");
 		}
 		System.out.println("Learner " + infra.getId() + " had enough accepted, value: " + learner.value);
+		proposerThread.interrupt();
 	}
 }
