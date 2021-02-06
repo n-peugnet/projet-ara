@@ -1,0 +1,21 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Debug Ppi<Paxos>",
+			"request": "launch",
+			"mainClass": "org.sar.ppi.Ppi",
+			"args": [
+				"ara.paxos.Paxos",
+				"org.sar.ppi.peersim.PeerSimRunner",
+				"--np=5",
+				"-c=${workspaceFolder}/ppi.json"
+			],
+			"classPaths": [
+				"lib/ppi.jar",
+				"bin"
+			]
+		}
+	]
+}

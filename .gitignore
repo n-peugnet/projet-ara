@@ -9,4 +9,5 @@
 *.swp
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 *.code-workspace
