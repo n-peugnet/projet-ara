@@ -36,10 +36,11 @@ public class Ex1NodesEnd implements Control {
 			Node node = Network.get(i);
 			PeerSimInfrastructure infra = (PeerSimInfrastructure) node.getProtocol(pid_infra);
 			Paxos process = (Paxos)infra.getProcess();
-			// System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + (node.getFailState()==Fallible.OK ? "alive" : "dead") + ")");
+			System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + (node.getFailState()==Fallible.OK ? "alive" : "dead") + ")");
 			messageCount += process.messageCount;
-			roundCount = process.proposer.round; // TODO: choose and find the real number of rounds.
+			roundCount += process.proposer.round; // TODO: choose and find the real number of rounds.
 		}
+		roundCount /= size;
 
 		try (Writer file = new FileWriter("ex1nodes.dat", true)) {
 			file.write("" + size + "," + messageCount + "," + roundCount + "," + time + "\n");

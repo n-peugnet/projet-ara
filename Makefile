@@ -55,7 +55,7 @@ clean: $(SUBDIRS)
 
 %.dat: PEERSIM_PROPERTIES = $*.properties
 %.dat: java
-	for i in $$(seq 4 9); do \
+	for i in $$(seq 4 10) 15; do \
 		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER); \
 	done;
 
