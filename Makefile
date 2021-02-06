@@ -23,6 +23,7 @@ RUNNER ?= peersim.PeerSimRunner
 JAVAC_FLAGS += -cp $(SRC):$(PPI):$(JAVAP) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
+PAXOS_ARGS  ?= true 1000 1000 100
 
 PLOTS = ex1nodes
 IMGS  = $(PLOTS:%=%.png)
@@ -38,7 +39,8 @@ java: $(BINS)
 plots: $(IMGS) ;
 
 run: java
-	$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi $(PPI_FLAGS) $(PROC) org.sar.ppi.$(RUNNER)
+	$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi $(PPI_FLAGS) $(PROC) org.sar.ppi.$(RUNNER) \
+		$(PAXOS_ARGS)
 
 clean: $(SUBDIRS)
 	rm -rf $(EXE)
@@ -69,7 +71,9 @@ $(DATAS): PEERSIM_PROPERTIES = $*.properties
 $(DATAS): %.dat: java
 	rm -rf $*.log
 	for i in $$(seq 4 10) 15; do \
-		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) >> $*.log 2> /dev/null; \
+		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) \
+			$(PAXOS_ARGS) \
+			>> $*.log 2> /dev/null; \
 	done;
 
 $(BIN)/%.class: $(SRC)/%.java | $(BIN)
