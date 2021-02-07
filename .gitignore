@@ -8,6 +8,7 @@
 # Plot files
 *.dat
 *.png
+!test.png
 
 # Editor files
 *.swp

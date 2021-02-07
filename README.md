@@ -18,7 +18,7 @@ This is an easy way to override every varibles defined with `?=`.
 
 ### Install latex
 
-    sudo apt install texlive latexmk texlive-lang-french cm-super
+    sudo apt install texlive latexmk texlive-lang-french texlive-latex-extra cm-super
 
 ### Render pdf
 
