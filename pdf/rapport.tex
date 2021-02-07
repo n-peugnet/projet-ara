@@ -87,7 +87,7 @@ Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds
 
 \begin{figure}[hb]
 	\centering
-	\includegraphics[width=0.9\textwidth]{NoeudsMessages.png} % changer ici l'image
+	\includegraphics[width=0.85\textwidth]{NoeudsMessages.png} % changer ici l'image
 	\caption{Nombre de messages en fonction du nombre de nœuds}
 	\label{fig:message-node}
 \end{figure}
@@ -96,7 +96,7 @@ Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds
 %%%%%%%%%%%%%%%%%%%% temps en fonction du nombre de noeuds
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.9\textwidth]{NoeudDuree.png} % changer ici l'image
+	\includegraphics[width=0.85\textwidth]{NoeudDuree.png} % changer ici l'image
 	\caption{Temps d'exécution en fonction du nombre de nœuds}
 	\label{fig:time-node}
 \end{figure}
@@ -104,7 +104,7 @@ Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds
 %%%%%%%%%%%%%%%%%%%% nombre de round en fonction du nombre de noeuds
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.9\textwidth]{NoeudsRounds.png} % changer ici l'image
+	\includegraphics[width=0.85\textwidth]{NoeudsRounds.png} % changer ici l'image
 	\caption{Numéro de round maximum en fonction du nombre de nœuds}
 	\label{fig:round-node}
 \end{figure}
@@ -128,9 +128,23 @@ En outre, on ne peut pas le voir sur ces graphiques, mais le dernier nœud est s
 Le fait d'utiliser l'identifiant comme valeur de round initiale permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages,
 au détriment de l'égalité entre les nœuds.
 
+
 \subsubsection{Activation / désactivation et incrémentation d'un temps de \emph{backoff}}
 
+%%%%%%%%%%%%%%%%%%%% nombre de round en fonction du nombre de noeuds
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.85\textwidth]{BackoffMessages.png} % changer ici l'image
+	\caption{Numéro de round maximum en fonction du nombre de nœuds}
+	\label{fig:backoff-duration-node}
+\end{figure}
 
+
+Nous avons réalisé une série d'expériences sur les paramètres de \emph{backoff} mais les graphiques obtenus ne sont pas ceux attendus.
+Nous en avons tout de même inclus un (Figure \ref{fig:backoff-duration-node}) dans le rapport pour ne pas avoir fait tout ce travail pour rien.
+
+Il n'est en effet pas possible de tirer quoi que ce soit de ce graphique.
+Nous ne pouvons que le déplorer.
 
 
 

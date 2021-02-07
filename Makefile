@@ -96,15 +96,13 @@ ex1nodes.dat: %.dat: | $(BINS)
 
 ex1backoff.dat: %.dat: | $(BINS)
 	rm -rf $*.log $*.err.log
-	for idAsRound in true false; do \
-		for i in $(EX1TIMEOUT_VALUES); do \
-			for j in $(EX1BACKOFF_VALUES); do \
-				for k in $(EX1RETRY_VALUES); do \
-					for l in $(EX1BACKOFFCOEF_VALUES); do \
-						$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $(NP) $(PROC) org.sar.ppi.$(RUNNER) \
-							$$idAsRound $$i $$j $$k $$l \
-							$(LOG_REDIRECTIONS); \
-					done; \
+	for i in $(EX1TIMEOUT_VALUES); do \
+		for j in $(EX1BACKOFF_VALUES); do \
+			for k in $(EX1RETRY_VALUES); do \
+				for l in $(EX1BACKOFFCOEF_VALUES); do \
+					$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $(NP) $(PROC) org.sar.ppi.$(RUNNER) \
+						false $$i $$j $$k $$l \
+						$(LOG_REDIRECTIONS); \
 				done; \
 			done; \
 		done; \
