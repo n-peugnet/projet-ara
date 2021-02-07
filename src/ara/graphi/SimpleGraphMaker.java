@@ -26,6 +26,8 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal; // ExpandableTerminal
 
 class SimpleGraphMaker {
 
+    public static boolean SORT_POINTS = false;
+
     public static void main(String[] args) {
         SimpleGraphMaker g = new SimpleGraphMaker();
         g.drawTheShit(args);
@@ -50,6 +52,10 @@ class SimpleGraphMaker {
         setColumnName(2, "Nombre de messages");
         setColumnName(3, "Nombre de rounds");
         setColumnName(4, "Durée totale (ms)");
+        setColumnName(5, "Temps de backoff (ms)");
+        setColumnName(6, "Coefficient de backoff");
+
+        // file.write("" + idAsRound + "," + size + "," + messageCount + "," + roundCount + "," + time + "," + backoff + "," + backoffCoef + "\n");
 
         /** A MODIFIER */
 
@@ -58,13 +64,17 @@ class SimpleGraphMaker {
         /** dataFilter.filterColumn(index de la colonne, valeur requise) */
         //draw_noeudsMessages();
         //draw_noeudsRounds();
-        draw_noeudsDureeTotale();
+        //draw_noeudsDureeTotale();
+        //draw_noeudsTempsBackoff();
+        draw_noeudsCoeffBackoff();
         
+        //addXMin = 0; addYMin = 0; addXMax = 0; addYMax = 0;
 
     }
 
 
     public void draw_noeudsMessages() {
+        addXMin = -3; addYMin = 0; addXMax = 0; addYMax = 0;
         CURRENT_STYLE = Style.LINES;
         DataFilter dataFilter = new DataFilter(1, 2, "Identifiant de round = id");
         dataFilter.filterColumn(0, 1);  // id as round = 0
@@ -84,7 +94,9 @@ class SimpleGraphMaker {
     }
 
     public void draw_noeudsRounds() {
-        CURRENT_STYLE = Style.LINES;
+        addXMin = -3; addYMin = 0; addXMax = 5; addYMax = 0.5;
+        //addXMin = -3; addYMin = -1; addXMax = 5; addYMax = 1;
+        CURRENT_STYLE = Style.BOXERRORBARS;
         DataFilter dataFilter = new DataFilter(1, 3, "Identifiant de round = id");
         dataFilter.filterColumn(0, 1);  // id as round = 0
 
@@ -95,6 +107,8 @@ class SimpleGraphMaker {
         xTitle = "Nombre de noeuds";
         yTitle = "Nombre de rounds";
 
+        //xMin = 10;
+
         /** Dessin des lignes */
         makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
         makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
@@ -103,6 +117,7 @@ class SimpleGraphMaker {
     }
 
     public void draw_noeudsDureeTotale() {
+        addXMin = -3; addYMin = 0; addXMax = 5; addYMax = 1000;
         CURRENT_STYLE = Style.BOXERRORBARS;
         DataFilter dataFilter = new DataFilter(1, 4, "Identifiant de round = id");
         dataFilter.filterColumn(0, 1);  // id as round = 0
@@ -119,6 +134,56 @@ class SimpleGraphMaker {
         makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
 
         saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/NoeudDuree.png");
+    }
+
+/*
+
+setColumnName(5, "Temps de backoff (ms)");
+setColumnName(6, "Coefficient de backoff");
+*/
+// file.write("" + idAsRound + "," + size + "," + messageCount + "," + roundCount + "," + time + "," + backoff + "," + backoffCoef + "\n");
+    public void draw_noeudsTempsBackoff() {
+        addXMin = 0; addYMin = -100; addXMax = 0; addYMax = +100;
+        CURRENT_STYLE = Style.LINES;
+        DataFilter dataFilter = new DataFilter(5, 4, "Identifiant de round = id");
+        dataFilter.filterColumn(0, 1);  // id as round = 0
+        dataFilter.filterColumn(6, 4);  // coeff de backoff
+
+        DataFilter dataFilter2 = new DataFilter(5, 4, "numéro round = 0");
+        dataFilter2.filterColumn(0, 0); // id as round = 0
+        dataFilter.filterColumn(6, 4);  // coeff de backoff
+
+        title = "Durée totale (ms) en fonction du temps de backoff";
+        xTitle = "Temps de backoff";
+        yTitle = "Durée totale (ms)";
+
+        /** Dessin des lignes */
+        makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
+        makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
+
+        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/BackoffMessages.png");
+    }
+
+    public void draw_noeudsCoeffBackoff() {
+        addXMin = 0; addYMin = 0; addXMax = 0; addYMax = 0;
+        CURRENT_STYLE = Style.LINES;
+        DataFilter dataFilter = new DataFilter(5, 4, "Identifiant de round = id");
+        dataFilter.filterColumn(0, 1);  // id as round = 0
+        dataFilter.filterColumn(5, 20);  // temps de backoff
+
+        DataFilter dataFilter2 = new DataFilter(5, 4, "numéro round = 0");
+        dataFilter2.filterColumn(0, 0); // id as round = 0
+        dataFilter.filterColumn(5, 20);  // temps de backoff
+
+        title = "Durée totale (ms) en fonction du temps de backoff";
+        xTitle = "Coefficient de backoff";
+        yTitle = "Durée totale (ms)";
+
+        /** Dessin des lignes */
+        makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
+        makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
+
+        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/BackoffMessages.png");
     }
 
 
@@ -299,7 +364,7 @@ class SimpleGraphMaker {
             int xValue = table[dataFilter.xColIndex][y];
             int yValue = table[dataFilter.yColIndex][y];
 
-            print("xv="+xValue + " yv="+yValue);
+            //print("xv="+xValue + " yv="+yValue);
 
             SomeX foundX = null;
                 for (SomeX sx : aggegation) {
@@ -337,8 +402,10 @@ class SimpleGraphMaker {
         /** Nombre de lignes au total, pour ces valeurs fixées */
         int numberOfLines = aggegation.get(0).yValues.size(); // TODO : bug si pas le même nombre de lignes sur chaque agrégation
 
-        for(SomeX sx : aggegation) {
-            Collections.sort(sx.yValues);
+        if (SORT_POINTS) {
+            for(SomeX sx : aggegation) {
+                Collections.sort(sx.yValues);
+            }
         }
 
         ArrayList<PlotLine> plotLines = new ArrayList<PlotLine>();
@@ -478,10 +545,10 @@ class SimpleGraphMaker {
     protected String title;
     protected String xTitle;
     protected String yTitle;
-    protected int xMin;
-    protected int xMax;
-    protected int yMin;
-    protected int yMax;
+    protected double xMin;
+    protected double xMax;
+    protected double yMin;
+    protected double yMax;
     /** Point aurait aussi marché mais + long à écrire and of course :
      *  tldr tmtc btw. */
 
@@ -508,7 +575,10 @@ class SimpleGraphMaker {
         this.yMax = yMax;
     }*/
 
-
+    public double addXMin = 0;
+    public double addXMax = 0;
+    public double addYMin = 0;
+    public double addYMax = 0;
 
     protected void drawOnTerminal(GNUPlotTerminal terminal) {
         try {
@@ -516,8 +586,8 @@ class SimpleGraphMaker {
             p.setTerminal(terminal);
             p.getAxis("x").setLabel(xTitle);
             p.getAxis("y").setLabel(yTitle);
-            p.getAxis("x").setBoundaries(xMin, xMax);
-            p.getAxis("y").setBoundaries(yMin, yMax);
+            p.getAxis("x").setBoundaries((double) xMin + addXMin, xMax + addXMax);
+            p.getAxis("y").setBoundaries(yMin + addYMin, yMax + addYMax);
             System.out.println("lines len : " + lines.size());
             for (DataSetPlot dsp : lines) {
                 p.addPlot(dsp);
