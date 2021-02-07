@@ -14,7 +14,7 @@ JAVAP ?= $(LIB)/JavaPlot.jar
 SRCS = $(shell find $(SRC) -name '*.java')
 BINS = $(SRCS:$(SRC)/%.java=$(BIN)/%.class)
 
-PEERSIM_PROPERTIES ?= ex1nodes.properties
+PEERSIM_PROPERTIES ?= ex2.properties
 CONFIG ?= '{"infra": {"peersim": {"properties": "$(PEERSIM_PROPERTIES)"}}}'
 PROC   ?= ara.paxos.Paxos
 NP     ?= 5
@@ -81,6 +81,7 @@ $(IMGS): %.png: %.dat java
 %.dat: PEERSIM_PROPERTIES = $*.properties
 
 .PRECIOUS: %.dat
+
 ex1nodes.dat: %.dat: | $(BINS)
 	rm -rf $*.log $*.err.log
 	for idAsRound in true false; do \
@@ -104,6 +105,16 @@ ex1backoff.dat: %.dat: | $(BINS)
 					done; \
 				done; \
 			done; \
+		done; \
+	done;
+
+ex2.dat: %.dat: | $(BINS)
+	rm -rf $*.log $*.err.log
+	for idAsRound in true false; do \
+		for i in $(EX1NODES_VALUES); do \
+			$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) \
+				$$idAsRound 1000 1000 100 1 \
+				$(LOG_REDIRECTIONS); \
 		done; \
 	done;
 
