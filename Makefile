@@ -33,13 +33,15 @@ JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
 PAXOS_ARGS  ?= true 1000 1000 100 1
 
-PLOTS = ex1nodes ex1backoff
-IMGS  = $(PLOTS:%=%.png)
-DATAS = $(PLOTS:%=%.dat)
+PLOTS   = ex1nodes ex1backoff
+IMGS    = $(PLOTS:%=%.png)
+DATAS   = $(PLOTS:%=%.dat)
+ERR_LOG = $(PLOTS:%=%.err.log)
+LOG     = $(PLOTS:%=%.log)
 
 all: pdf java
 
-pdf:
+pdf: plots
 	$(MAKE) -C $(PDF) $@
 
 java: $(BINS)
@@ -52,12 +54,12 @@ run: java
 
 clean: $(SUBDIRS) cleandata
 	rm -rf $(BIN)
-	rm -rf *.png
+	rm -rf $(IMGS)
 	$(MAKE) -C $(PDF) $@
 
 cleandata:
-	rm -rf *.log
-	rm -rf *.dat
+	rm -rf $(ERR_LOG) $(LOG)
+	rm -rf $(DATAS)
 
 .PHONY: all pdf java plots run clean cleandata
 
