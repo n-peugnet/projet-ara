@@ -36,6 +36,7 @@ public class Paxos extends NodeProcess {
 		proposer.timeout = Integer.valueOf(args[1]);
 		proposer.backoff = Integer.valueOf(args[2]);
 		proposer.maxRetry = Integer.valueOf(args[3]);
+		proposer.backoffCoef = Integer.valueOf(args[4]);
 
 		proposer.round = idAsRound ? infra.getId() : 0;
 		learnerThread = infra.serialThreadRun(() -> waitForAccepteds());
@@ -89,7 +90,7 @@ public class Paxos extends NodeProcess {
 			}
 			proposer.round = proposer.chooseNextRound();
 			proposer.retry++;
-			infra.scheduleCall("processFindLeader", new Object[] {m}, proposer.backoff);
+			infra.scheduleCall("processFindLeader", new Object[] {m}, proposer.backoff * proposer.backoffCoef);
 			return;
 		}
 

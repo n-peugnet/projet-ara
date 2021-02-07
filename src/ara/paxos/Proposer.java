@@ -26,6 +26,9 @@ public class Proposer {
 	/** Delai avant le nouvel essai d'envoi de Prepare */
 	public int backoff = 1000;
 
+	/** Coeficient multiplicateur du temps de backoff, 0 = backoff désactivé, 1 = constant evidemment */
+	public int backoffCoef = 1;
+
 	/** Nombre de fois où on a essayé d'envoyer à nouveau un Prepare */
 	public int retry = 0;
 
