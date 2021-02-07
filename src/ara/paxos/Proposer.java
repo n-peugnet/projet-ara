@@ -12,9 +12,6 @@ import peersim.core.CommonState;
 public class Proposer {
 	public static final int NULL = -1;
 
-	/** ?? (pas dans mon algo) valeur finale du leader, décidée et immuable */
-	public int leader = NULL;
-
 	/** MaValeur, valeur proposée */
 	public int value = NULL;
 
@@ -35,6 +32,9 @@ public class Proposer {
 
 	/** Nombre maximum d'essais d'envoi de Prepare */
 	public int maxRetry = 100;
+
+	/** Nombre de valeurs à soumettre séquentiellement en tant que leader pour l'exo 2 */
+	public int submitValues = 0;
 
 	/** ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ; */
 	public List<Message> received = new ArrayList<>(); // ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ;

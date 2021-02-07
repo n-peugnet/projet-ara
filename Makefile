@@ -33,7 +33,7 @@ LOG_REDIRECTIONS = >> $*.log 2>> $*.err.log
 JAVAC_FLAGS += -cp $(SRC):$(PPI):$(JAVAP) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
-PAXOS_ARGS  ?= true 1000 1000 100 1
+PAXOS_ARGS  ?= true 1000 100 100 3 10
 
 PLOTS   = ex1nodes ex1backoff
 IMGS    = $(PLOTS:%=%.png)
@@ -89,7 +89,7 @@ ex1nodes.dat: %.dat: | $(BINS)
 	for idAsRound in true false; do \
 		for i in $(EX1NODES_VALUES); do \
 			$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) \
-				$$idAsRound 1000 1000 100 1 \
+				$$idAsRound 1000 1000 100 1 0 \
 				$(LOG_REDIRECTIONS); \
 		done; \
 	done;
@@ -102,7 +102,7 @@ ex1backoff.dat: %.dat: | $(BINS)
 				for k in $(EX1RETRY_VALUES); do \
 					for l in $(EX1BACKOFFCOEF_VALUES); do \
 						$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $(NP) $(PROC) org.sar.ppi.$(RUNNER) \
-							$$idAsRound $$i $$j $$k $$l \
+							$$idAsRound $$i $$j $$k $$l 0 \
 							$(LOG_REDIRECTIONS); \
 					done; \
 				done; \

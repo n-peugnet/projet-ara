@@ -45,7 +45,7 @@ public abstract class CommonControl implements Control {
 			PeerSimInfrastructure infra = (PeerSimInfrastructure) node.getProtocol(pid_infra);
 			Paxos process = (Paxos)infra.getProcess();
 			boolean isAlive = node.getFailState()==Fallible.OK;
-			System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + ( isAlive ? "alive" : "dead") + ")");
+			System.out.println("On node " + node.getID() + " variable = " + process.leader + "  (" + ( isAlive ? "alive" : "dead") + ")");
 			idAsRound = process.idAsRound ? 1 : 0;
 			timeout = process.proposer.timeout;
 			backoff = process.proposer.backoff;
@@ -58,9 +58,9 @@ public abstract class CommonControl implements Control {
 				roundCount -= infra.getId();
 			}
 			if (chosenValue == NULL) {
-				chosenValue = process.learner.value;
+				chosenValue = process.leader;
 			} else {
-				if (isAlive && chosenValue != process.learner.value) {
+				if (isAlive && chosenValue != process.leader) {
 					throw new RuntimeException("Learners values do not match !");
 				}
 			}

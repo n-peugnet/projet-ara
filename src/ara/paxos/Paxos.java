@@ -36,6 +36,12 @@ public class Paxos extends NodeProcess {
 	public int messageCount = 0;
 	public boolean idAsRound = false;
 
+	/** Le leader actuel. */
+	public int leader = NULL;
+
+	/** Variable permettant de savoir quand se termine une requête Paxos */
+	public boolean paxosEnd = false;
+
 	@Override
 	public void init(String[] args) {
 		idAsRound = Boolean.valueOf(args[0]);
@@ -43,6 +49,7 @@ public class Paxos extends NodeProcess {
 		proposer.backoff = Integer.valueOf(args[2]);
 		proposer.maxRetry = Integer.valueOf(args[3]);
 		proposer.backoffCoef = Integer.valueOf(args[4]);
+		proposer.submitValues = Integer.valueOf(args[5]);
 
 		proposer.round = idAsRound ? infra.getId() : 0;
 		infra.serialThreadRun(() -> waitForAccepteds());
@@ -65,11 +72,29 @@ public class Paxos extends NodeProcess {
 		proposer.value = infra.getId();
 
 		/** Si le leader est connu, on renvoie simplment sa valeur */
-		if (proposer.leader != NULL) {
+		if (leader != NULL) {
 			messageCount++;
-			infra.send(new Leader(infra.getId(), m.getIdsrc(), proposer.leader));
+			infra.send(new Leader(infra.getId(), m.getIdsrc(), leader));
 			return;
 		}
+		int chosenValue = runPaxos(proposer.value);
+		infra.send(new Leader(infra.getId(), m.getIdsrc(), chosenValue));
+	}
+
+	public int runPaxos(int proposedValue) {
+		startPaxos(proposedValue);
+		try {
+			infra.wait(() -> paxosEnd);
+		} catch (InterruptedException e) {
+		}
+		int chosenValue = learner.value;
+		// Réinit toutes les valeurs de l'algo.
+		paxosEnd = false;
+		learner.reinit();
+		return chosenValue;
+	}
+
+	public void startPaxos(Integer proposedValue) {
 
 		/** Etape 1a - Envoi d'un message prepare à tous les Acceptors */
 		for (int i = 0; i < infra.size(); i++) {
@@ -92,7 +117,7 @@ public class Paxos extends NodeProcess {
 			return;
 		}
 		if (learner.value != NULL) {
-			infra.send(new Leader(infra.getId(), m.getIdsrc(), learner.value));
+			paxosEnd = true;
 			return;
 		}
 		if (!success || proposer.rejectCount() > maj) {
@@ -101,7 +126,7 @@ public class Paxos extends NodeProcess {
 			}
 			proposer.round = proposer.chooseNextRound();
 			proposer.retry++;
-			infra.scheduleCall("processFindLeader", new Object[] { m }, proposer.backoffDelay());
+			infra.scheduleCall("startPaxos", new Object[] { proposedValue }, proposer.backoffDelay());
 			return;
 		}
 
@@ -138,14 +163,14 @@ public class Paxos extends NodeProcess {
 		} catch (InterruptedException e) {
 			print("Proposer " + infra.getId() + " interrupted while waiting learner value to be present.");
 		}
-		
-		infra.send(new Leader(infra.getId(), m.getIdsrc(), learner.value));
+		paxosEnd = true;
 		return;
 	}
 
 	@MessageHandler
 	public void processLeader(Leader m) {
 		print("Proposer " + infra.getId() + " leader is: " + m.leader);
+		leader = m.leader;
 	}
 
 	@MessageHandler
