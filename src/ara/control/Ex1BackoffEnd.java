@@ -11,7 +11,8 @@ public class Ex1BackoffEnd extends CommonControl {
 
 	@Override
 	public void writeline(Writer file) throws IOException {
-		file.write("" + idAsRound + "," + size + "," + timeout + "," + backoff + "," + backoffCoef + "," + retry + "," + messageCount + "," + roundCount + "," + time + "\n");
+		//file.write("" + idAsRound + "," + size + "," + timeout + "," + backoff + "," + backoffCoef + "," + retry + "," + messageCount + "," + roundCount + "," + time + "\n");
+		file.write("" + idAsRound + "," + size + "," + messageCount + "," + roundCount + "," + time + "," + backoff + "," + backoffCoef + "\n");
 	}
 
 	@Override
