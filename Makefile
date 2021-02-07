@@ -20,6 +20,11 @@ PROC   ?= ara.paxos.Paxos
 NP     ?= 5
 RUNNER ?= peersim.PeerSimRunner
 
+EX1NODES_VALUES ?= 4 5 6 8 10 15
+EX1BACKOFF_VALUES ?= 100 500 1000 5000
+EX1TIMEOUT_VALUES ?= 100 500 1000 5000
+EX1RETRY_VALUES ?= 5 10 50 100
+
 JAVAC_FLAGS += -cp $(SRC):$(PPI):$(JAVAP) -d $(BIN)
 JAVA_FLAGS  += -cp $(BIN):$(PPI):$(JAVAP)
 PPI_FLAGS   += -j $(CONFIG) --np $(NP)
@@ -67,13 +72,30 @@ $(IMGS): %.png: %.dat java
 	$(JAVA) $(JAVA_FLAGS) ara.graphi.SimpleGraphMaker $* $@ $<
 
 
-$(DATAS): PEERSIM_PROPERTIES = $*.properties
-$(DATAS): %.dat: java
+%.dat: PEERSIM_PROPERTIES = $*.properties
+
+ex1nodes.dat: %.dat: java
 	rm -rf $*.log
-	for i in $$(seq 4 10) 15; do \
-		$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) \
-			$(PAXOS_ARGS) \
-			>> $*.log 2> /dev/null; \
+	for idAsRound in true false; do \
+		for i in $(EX1NODES_VALUES); do \
+			$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $$i $(PROC) org.sar.ppi.$(RUNNER) \
+				$$idAsRound 1000 1000 100 \
+				>> $*.log 2> /dev/null; \
+		done; \
+	done;
+
+ex1backoff.dat: %.dat: java
+	rm -rf $*.log
+	for idAsRound in true false; do \
+		for i in $(EX1TIMEOUT_VALUES); do \
+			for j in $(EX1BACKOFF_VALUES); do \
+				for k in $(EX1RETRY_VALUES); do \
+					$(JAVA) $(JAVA_FLAGS) org.sar.ppi.Ppi -j $(CONFIG) --np $(NP) $(PROC) org.sar.ppi.$(RUNNER) \
+						$$idAsRound $$i $$j $$k \
+						>> $*.log 2> /dev/null; \
+				done; \
+			done; \
+		done; \
 	done;
 
 $(BIN)/%.class: $(SRC)/%.java | $(BIN)

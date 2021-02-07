@@ -28,10 +28,11 @@ public class Paxos extends NodeProcess {
 	public Learner learner = new Learner();
 	public Thread learnerThread, proposerThread;
 	public int messageCount = 0;
+	public boolean idAsRound = false;
 
 	@Override
 	public void init(String[] args) {
-		boolean idAsRound = Boolean.valueOf(args[0]);
+		idAsRound = Boolean.valueOf(args[0]);
 		proposer.timeout = Integer.valueOf(args[1]);
 		proposer.backoff = Integer.valueOf(args[2]);
 		proposer.maxRetry = Integer.valueOf(args[3]);
