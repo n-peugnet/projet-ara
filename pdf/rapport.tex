@@ -91,8 +91,11 @@ Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds
 %%%%%%%% Ici il faut des joulis graphiques %%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-On remarque que comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
-Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages.
+On remarque que, comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
+On peut en effet voir que l'algorithme se termine presque à chaque fois en un seul round et que le leader est systématiquement le dernier nœud.
+
+Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages,
+au détriment de l'égalité entre les nœuds.
 
 
 
@@ -110,12 +113,18 @@ Cependant une idée a été retenue.
 
 \section*{Conclusion}
 
+L'archive zip contient comme demandé uniquement que les sources produites, il ne sera donc pas simple de les compiler si l'envie vient de lancer une petite simulation.
+Dans l'éventualité où un tel besoin se ferait sentir, il sera bien-sûr possible de cloner le dépôt GitHub
+\footnote{\url{https://github.com/n-peugnet/projet-ara}}
+des sources et d'y lancer la commande \lstinline{make}.
+
+Finalement, de ce projet, nous retiendrons principalement la citation suivante :
+
 \begin{quotation}
 	"Rien ne sert de courir ; il faut partir à point."
 
 	--- \emph{Jean de la Fontaine}
 \end{quotation}
-
 
 
 
