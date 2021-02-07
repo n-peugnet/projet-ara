@@ -83,7 +83,7 @@ public int backoffDelay() {
 }
 \end{lstlisting}
 
-Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
+Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation du temps de \emph{backoff} à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
 Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
 
 
@@ -100,12 +100,12 @@ Cette propriété permet donc d'arriver plus rapidement à un consensus et avec 
 
 \section{Étude expérimentale 2 : Multi-Paxos séquentiel}
 
-Cette Étude n'a malheureusement pas pu être menée à terme.
+Cette étude n'a malheureusement pas pu être menée à terme.
 Un début de code a été produit mais n'assurant pas les propriétés de sureté, il n'a pas été possible de l'utiliser à des fins d'expérimentations.
 
 \section{Étude expérimentale 3 : Réduire le coût en messages}
 
-Une fois encore, nous n'avons pas eu la possibilité de réaliser cette étude, car nous n'avons pas réalisé de code fonctionnel.
+Une fois encore, nous n'avons pas eu la possibilité de réaliser cette étude, car nous n'avons pas produit de code fonctionnel.
 Cependant une idée a été retenue.
 
 \section*{Conclusion}
