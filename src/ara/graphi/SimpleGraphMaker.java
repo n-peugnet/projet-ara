@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner; // Import the Scanner class to read text files
@@ -24,6 +25,114 @@ import com.panayotis.gnuplot.terminal.SVGTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal; // ExpandableTerminal
 
 class SimpleGraphMaker {
+
+    public static void main(String[] args) {
+        SimpleGraphMaker g = new SimpleGraphMaker();
+        g.drawTheShit(args);
+    }
+
+
+    public void drawTheShit(String[] args) {
+        String name = args[0];
+        String image = args[1];
+        String datas = args[2];
+        System.out.printf("%s, %s, %s\n", name, image, datas);
+
+        // Sous la forme nodeCount,messageCount,roundCount,duration
+    
+        xMin = -1; xMax = -1; yMin = -1; yMax = -1;
+
+        /** Chargement des données */
+        loadRawTable(datas);
+
+        setColumnName(0, "Id mis au numéro de round");
+        setColumnName(1, "Nombre de noeuds");
+        setColumnName(2, "Nombre de messages");
+        setColumnName(3, "Nombre de rounds");
+        setColumnName(4, "Durée totale (ms)");
+
+        /** A MODIFIER */
+
+        /** DataFilter(index de la colonne en x, index de la colonne en y) */
+
+        /** dataFilter.filterColumn(index de la colonne, valeur requise) */
+        //draw_noeudsMessages();
+        //draw_noeudsRounds();
+        draw_noeudsDureeTotale();
+        
+
+    }
+
+
+    public void draw_noeudsMessages() {
+        CURRENT_STYLE = Style.LINES;
+        DataFilter dataFilter = new DataFilter(1, 2, "Identifiant de round = id");
+        dataFilter.filterColumn(0, 1);  // id as round = 0
+
+        DataFilter dataFilter2 = new DataFilter(1, 2, "numéro round = 0");
+        dataFilter2.filterColumn(0, 0); // id as round = 0
+
+        title = "Nombre de messages en fonction du nombre de noeuds";
+        xTitle = "Nombre de noeuds";
+        yTitle = "Nombre de messages";
+
+        /** Dessin des lignes */
+        makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
+        makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
+
+        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/NoeudsMessages.png");
+    }
+
+    public void draw_noeudsRounds() {
+        CURRENT_STYLE = Style.LINES;
+        DataFilter dataFilter = new DataFilter(1, 3, "Identifiant de round = id");
+        dataFilter.filterColumn(0, 1);  // id as round = 0
+
+        DataFilter dataFilter2 = new DataFilter(1, 3, "numéro round = 0");
+        dataFilter2.filterColumn(0, 0); // id as round = 0
+
+        title = "Nombre de rounds en fonction du nombre de noeuds";
+        xTitle = "Nombre de noeuds";
+        yTitle = "Nombre de rounds";
+
+        /** Dessin des lignes */
+        makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
+        makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
+
+        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/NoeudsRounds.png");
+    }
+
+    public void draw_noeudsDureeTotale() {
+        CURRENT_STYLE = Style.BOXERRORBARS;
+        DataFilter dataFilter = new DataFilter(1, 4, "Identifiant de round = id");
+        dataFilter.filterColumn(0, 1);  // id as round = 0
+
+        DataFilter dataFilter2 = new DataFilter(1, 4, "numéro round = 0");
+        dataFilter2.filterColumn(0, 0); // id as round = 0
+
+        title = "Durée totale (ms) en fonction du nombre de noeuds";
+        xTitle = "Nombre de noeuds";
+        yTitle = "Durée totale (ms)";
+
+        /** Dessin des lignes */
+        makeLines(dataFilter, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
+        makeLines(dataFilter2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
+
+        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/NoeudDuree.png");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     //public static class RawTable {
@@ -108,15 +217,17 @@ class SimpleGraphMaker {
 
         public final int xColIndex;
         public final int yColIndex;
+        public final String displayName;
         
         /**
          * Constructeur
          * @param xColIndex l'index de la colonne à à mettre sur l'axe x
          * @param yColIndex l'index de la colonne à à mettre sur l'axe y
          */
-        public DataFilter(int xColIndex, int yColIndex) {
+        public DataFilter(int xColIndex, int yColIndex, String displayName) {
             this.xColIndex = xColIndex;
             this.yColIndex = yColIndex;
+            this.displayName = displayName;
         }
 
         /**
@@ -124,7 +235,7 @@ class SimpleGraphMaker {
          * @param colIndex      index de la colonne (donc x dans la table)
          * @param requiredValue valeur requise (valeur exacte, j'aurais pu faire un intervalle aussi)
          */
-        public void fixColumn(int colIndex, int requiredValue) {
+        public void filterColumn(int colIndex, int requiredValue) {
             fixedColumns.add(new FixedColumn(colIndex, requiredValue));
         }
     }
@@ -226,17 +337,22 @@ class SimpleGraphMaker {
         /** Nombre de lignes au total, pour ces valeurs fixées */
         int numberOfLines = aggegation.get(0).yValues.size(); // TODO : bug si pas le même nombre de lignes sur chaque agrégation
 
+        for(SomeX sx : aggegation) {
+            Collections.sort(sx.yValues);
+        }
+
         ArrayList<PlotLine> plotLines = new ArrayList<PlotLine>();
 
         for (int y = 0; y < numberOfLines; y++) { // pour chaque index de ligne
             String cName = "";
             if (y == 0) {
-                cName = columnName.get(dataFilter.yColIndex);
+                cName = dataFilter.displayName;//columnName.get(dataFilter.yColIndex);
                 if (cName == null) {
                     cName = "Nom introuvable";
                 }
             }
-            PlotLine plotLine = new PlotLine("");
+
+            PlotLine plotLine = new PlotLine(cName);
             for(SomeX sx : aggegation) {
                 int xPoint = sx.x;
                 int yPoint = sx.yValues.get(y); // Valeur de cette ligne dans l'agrégation
@@ -245,14 +361,25 @@ class SimpleGraphMaker {
             plotLines.add(plotLine);
         }
         
-        PlotReady pReady = new PlotReady();
-        pReady.plotLines = plotLines;
-        pReady.xMax = xMax;
-        pReady.xMin = xMin;
-        pReady.yMax = yMax;
-        pReady.yMin = yMin;
+        PlotReady plotReady = new PlotReady();
+        plotReady.plotLines = plotLines;
+        plotReady.xMax = xMax;
+        plotReady.xMin = xMin;
+        plotReady.yMax = yMax;
+        plotReady.yMin = yMin;
 
-        return pReady;
+        if (this.xMin == -1) {
+            this.xMin = plotReady.xMin;
+            this.xMax = plotReady.xMax;
+            this.yMin = plotReady.yMin;
+            this.yMax = plotReady.yMax;
+        }
+        if (this.xMin > plotReady.xMin) this.xMin = plotReady.xMin;
+        if (this.xMax < plotReady.xMax) this.xMax = plotReady.xMax;
+        if (this.yMin > plotReady.yMin) this.yMin = plotReady.yMin;
+        if (this.yMax < plotReady.yMax) this.yMax = plotReady.yMax;
+
+        return plotReady;
     }
 
     class PlotLine {
@@ -299,6 +426,16 @@ class SimpleGraphMaker {
             addLine(plotLine.displayName, color, 1, plotLine.formatData());
         }
     }
+    
+    public void makeLines(DataFilter dataFilter, NamedPlotColor color, String lineTitle) {
+
+        PlotReady plotReady = prepareData(dataFilter);
+
+        //System.out.println("makeLines line nb = " + plotReady.plotLines.size());
+        for (PlotLine plotLine : plotReady.plotLines) {
+            addLine(plotLine.displayName, color, 1, plotLine.formatData());
+        }
+    }
 
     protected final List<DataSetPlot> lines = new ArrayList<DataSetPlot>();
 
@@ -332,48 +469,12 @@ class SimpleGraphMaker {
 
 
 
-    public void drawTheShit(String[] args) {
-        String name = args[0];
-        String image = args[1];
-        String datas = args[2];
-        System.out.printf("%s, %s, %s\n", name, image, datas);
-
-        // Sous la forme nodeCount,messageCount,roundCount,duration
     
-        SimpleGraphMaker g = this;
-
-        g.loadRawTable(datas);
-
-        DataFilter dataFilter = new DataFilter(1, 2);
-        dataFilter.fixColumn(0, 1); // id as round
-        PlotReady plotReady = g.prepareData(dataFilter);
 
 
-        DataFilter dataFilter2 = new DataFilter(1, 2);
-        dataFilter2.fixColumn(0, 0); // id as round
-        PlotReady plotReady2 = g.prepareData(dataFilter2);
-
-        title = "Nombre de messages en fonction du nombre de noeuds";
-        xTitle = "Nombre de noeuds";
-        yTitle = "Nombre de messages";
-        xMin = plotReady.xMin;
-        xMax = plotReady.xMax;
-        yMin = plotReady.yMin;
-        yMax = plotReady.yMax;
 
 
-        //SimpleGraphMaker graph = new SimpleGraphMaker("Nombre de messages en fonction du nombre de noeuds", "Nombre de noeuds", "Nombre de messages",
-        //plotReady.xMin, plotReady.xMax, plotReady.yMin, plotReady.yMax);
-
-        makeLines(plotReady, NamedPlotColor.DARK_GOLDENROD, "numéro round = id");
-        makeLines(plotReady2, NamedPlotColor.DARK_VIOLET, "numéro round = 0");
-
-        saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/pd_sansss.png");
-        
-
-    }
-
-
+    /** */
     protected String title;
     protected String xTitle;
     protected String yTitle;
@@ -482,62 +583,5 @@ class SimpleGraphMaker {
 
 
 
-    public static void main(String[] args) {
-        
-        SimpleGraphMaker g = new SimpleGraphMaker();
-        g.drawTheShit(args);
-
-
-
-/*
-        SimpleGraphMaker graph = new SimpleGraphMaker("Nombre de messages en fonction du nombre de noeuds", "Nombre de noeuds", "Nombre de messages",
-        metaData.minVal[1], metaData.maxVal[1], metaData.minVal[2], metaData.maxVal[2]);
-
-        for (IdAsRoundContainer rc : roundContainer) { // idAsRound fixé
-            
-            PlotData pd = convertToPlotData(rc);
-
-            if (rc.idAsRound == 1) {
-                makeLines(rc, NamedPlotColor.DARK_GOLDENROD, "numéro round = id", graph);
-            } else {
-                makeLines(rc, NamedPlotColor.DARK_VIOLET, "numéro round = 0", graph);
-            }
-        }
-
-        graph.saveAs("/home/sylvain/SAR_M2/JavaPlot-0.5.0/demo/src/pd_sans.png");
-*/
-
-    }
-
-
-
-    /*static class PlotData {
-
-        public final int lineCount; // nombre de lignes à dessiner ( = data.get(0).size())
-
-        /** Chaque PlotDataX est à une valeur de X fixée.
-         *  Dessiner une courbe, c'est fixer un index (position dans data.yValues) * /
-        public ArrayList<PlotDataX> data = new ArrayList<PlotDataX>();
-
-        public PlotData(int lineCount) {
-            this.lineCount = lineCount; // = data.get(0).size()
-        }
-        public int xNumber() {
-            return data.size(); // nombre de points par courbe
-        }
-    }
-
-    // tous les y à dessiner, à x fixé
-    static class PlotDataX {
-
-        final public int x;
-
-        /** Valeurs en y à x fixé * /
-        public ArrayList<Integer> yValues = new ArrayList<Integer>();
-
-        public PlotDataX(int x) {
-            this.x = x;
-        }
-    }*/
 
 }
