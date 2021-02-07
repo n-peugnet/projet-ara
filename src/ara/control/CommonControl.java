@@ -21,6 +21,9 @@ public abstract class CommonControl implements Control {
 	
 	private final int pid_infra;
 	int idAsRound = 0;
+	int timeout = 0;
+	int backoff = 0;
+	int retry = 0;
 	int size = Network.size();
 	int messageCount = 0;
 	int roundCount = 0;
@@ -42,6 +45,9 @@ public abstract class CommonControl implements Control {
 			Paxos process = (Paxos)infra.getProcess();
 			System.out.println("On node " + node.getID() + " variable = " + process.learner.value + "  (" + (node.getFailState()==Fallible.OK ? "alive" : "dead") + ")");
 			idAsRound = process.idAsRound ? 1 : 0;
+			timeout = process.proposer.timeout;
+			backoff = process.proposer.backoff;
+			retry = process.proposer.maxRetry;
 			messageCount += process.messageCount;
 			roundCount += process.proposer.round; // TODO: choose and find the real number of rounds.
 			if (chosenValue == NULL) {
