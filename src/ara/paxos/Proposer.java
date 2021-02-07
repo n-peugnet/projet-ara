@@ -7,6 +7,7 @@ import org.sar.ppi.events.Message;
 
 import ara.paxos.Messages.Promise;
 import ara.paxos.Messages.Reject;
+import peersim.core.CommonState;
 
 public class Proposer {
 	public static final int NULL = -1;
@@ -37,6 +38,10 @@ public class Proposer {
 
 	/** ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ; */
 	public List<Message> received = new ArrayList<>(); // ListePromiseReçus = (liste (vide) de (IdAcceptor, Valeur, NuméroRound)) ;
+
+	public int backoffDelay() {
+		return (backoff + CommonState.r.nextInt(backoff)) * (backoffCoef * retry);
+	}
 
 	/** Retourne le nombre de Promise reçus */
 	public int promiseCount() {

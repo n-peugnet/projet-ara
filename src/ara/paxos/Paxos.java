@@ -9,6 +9,7 @@ import ara.paxos.Messages.Promise;
 import ara.paxos.Messages.Accept;
 import ara.paxos.Messages.Accepted;
 import ara.paxos.Messages.Reject;
+import peersim.core.CommonState;
 
 import java.util.List;
 
@@ -42,8 +43,7 @@ public class Paxos extends NodeProcess {
 		infra.serialThreadRun(() -> selfFindLeader());
 	}
 
-	////////////////////////////////// PROPOSER
-	////////////////////////////////// ///////////////////////////////////////
+	////////////////////////////////// PROPOSER ///////////////////////////////////////
 
 	public void selfFindLeader() {
 		messageCount++;
@@ -95,7 +95,7 @@ public class Paxos extends NodeProcess {
 			}
 			proposer.round = proposer.chooseNextRound();
 			proposer.retry++;
-			infra.scheduleCall("processFindLeader", new Object[] { m }, proposer.backoff * proposer.backoffCoef);
+			infra.scheduleCall("processFindLeader", new Object[] { m }, proposer.backoffDelay());
 			return;
 		}
 
