@@ -86,27 +86,27 @@ Bien que ne permettant pas de faire d'autres courbes que des droites, cette mét
 Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
 
 \begin{figure}[hb]
-    \centering
-    \includegraphics[width=1\textwidth]{NoeudsMessages.png} % changer ici l'image
-    \caption{Nombre de messages en fonction du nombre de nœuds}
-    \label{fig:message-node}
+	\centering
+	\includegraphics[width=0.9\textwidth]{NoeudsMessages.png} % changer ici l'image
+	\caption{Nombre de messages en fonction du nombre de nœuds}
+	\label{fig:message-node}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%% temps en fonction du nombre de noeuds
 \begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\textwidth]{NoeudDuree.png} % changer ici l'image
-    \caption{Temps d'exécution en fonction du nombre de nœuds}
-    \label{fig:time-node}
+	\centering
+	\includegraphics[width=0.9\textwidth]{NoeudDuree.png} % changer ici l'image
+	\caption{Temps d'exécution en fonction du nombre de nœuds}
+	\label{fig:time-node}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%% nombre de round en fonction du nombre de noeuds
 \begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\textwidth]{NoeudsRounds.png} % changer ici l'image
-    \caption{Numéro de round maximum en fonction du nombre de nœuds}
-    \label{fig:round-node}
+	\centering
+	\includegraphics[width=0.9\textwidth]{NoeudsRounds.png} % changer ici l'image
+	\caption{Numéro de round maximum en fonction du nombre de nœuds}
+	\label{fig:round-node}
 \end{figure}
 
 \subsection{Résultats}
@@ -115,7 +115,7 @@ Les courbes ont été tracées pour plusieurs exécutions de chaque simulation a
 Nous avons hésité entre tracer une moyenne des résultats et tracer chaque courbe.
 N'ayant pas eu l'occasion de tester le rendu d'une courbe moyenne nous avons décidé d'afficher les graphiques ici présents.
 
-
+\subsubsection{Utilisation de l'identifiant comme valeur de round initiale}
 
 On remarque que, comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
 Le fait de favoriser certains nœuds provoque ainsi une réduction du nombre de messages (Figure \ref{fig:message-node}) et du temps d'exécution d'une itération (Figure \ref{fig:time-node}).
@@ -125,8 +125,10 @@ En outre, on ne peut pas le voir sur ces graphiques, mais le dernier nœud est s
 À l'inverse, quand tous les nœuds utilisent la même valeur de round initial il est souvent nécessaire de réaliser plusieurs rounds (Figure \ref{fig:round-node}).
 
 
-Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages,
+Le fait d'utiliser l'identifiant comme valeur de round initiale permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages,
 au détriment de l'égalité entre les nœuds.
+
+\subsubsection{Activation / désactivation et incrémentation d'un temps de \emph{backoff}}
 
 
 
@@ -145,7 +147,7 @@ Cependant une idée a été retenue.
 \section*{Conclusion}
 
 L'archive zip contient comme demandé uniquement que les sources produites, il ne sera donc pas simple de les compiler si l'envie vient de lancer une petite simulation.
-Dans l'éventualité où un tel besoin se ferait sentir, il sera bien-sûr possible de cloner le dépôt GitHub
+Dans l'éventualité où un tel besoin se ferait ressentir, il sera bien-sûr possible de cloner le dépôt GitHub
 \footnote{\url{https://github.com/n-peugnet/projet-ara}}
 des sources et d'y lancer la commande \lstinline{make}.
 
