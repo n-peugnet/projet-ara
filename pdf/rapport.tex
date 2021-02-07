@@ -50,7 +50,7 @@ Le but de ce projet est de d'étudier l'efficacité de l'algorithme de Paxos en 
 La première chose à faire a été de coder l'algorithme à l'aide d'un simulateur afin de pouvoir lancer plusieurs expérimentations.
 Nous avons utilisé PPI\footnote{\url{https://github.com/PolyProcessInterface/ppi}} pour cette tâche,
 car cette API permet de lancer le code soit sur le simulateur Peersim soit via MPI et parce que réutiliser un projet réalisé par le passé était plus motivant pour au moins l'un de nous deux.
-Ce n'était pas une si bonne idée que ça.
+Ce n'était, comme on pouvait s'en douter, pas une si bonne idée que ça.
 
 \section{Étude expérimentale 1}
 
@@ -84,7 +84,17 @@ public int backoffDelay() {
 \end{lstlisting}
 
 Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
-Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds utilisent une valeur trop proche à chaque nouvel essai.
+Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% Ici il faut des joulis graphiques %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+On remarque que comme prévu, l'utilisation de l'identitfiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
+Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beauoup moins d'envois de messages.
+
+
 
 
 
