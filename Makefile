@@ -75,7 +75,7 @@ $(IMGS): %.png: %.dat java
 %.dat: PEERSIM_PROPERTIES = $*.properties
 
 .PRECIOUS: %.dat
-ex1nodes.dat: %.dat: java
+ex1nodes.dat: %.dat: | $(BINS)
 	rm -rf $*.log
 	for idAsRound in true false; do \
 		for i in $(EX1NODES_VALUES); do \
@@ -85,7 +85,7 @@ ex1nodes.dat: %.dat: java
 		done; \
 	done;
 
-ex1backoff.dat: %.dat: java
+ex1backoff.dat: %.dat: | $(BINS)
 	rm -rf $*.log
 	for idAsRound in true false; do \
 		for i in $(EX1TIMEOUT_VALUES); do \

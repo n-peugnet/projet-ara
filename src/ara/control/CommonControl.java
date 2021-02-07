@@ -15,6 +15,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 public abstract class CommonControl implements Control {
+	public static final int NULL = -1;
 
 	private static final String PAR_PROTO_INFRA="infra";
 	
@@ -24,6 +25,7 @@ public abstract class CommonControl implements Control {
 	int messageCount = 0;
 	int roundCount = 0;
 	long time = 0;
+	int chosenValue = NULL;
 	
 	public CommonControl(String prefix) {
 		pid_infra=Configuration.getPid(prefix+"."+PAR_PROTO_INFRA);
@@ -42,6 +44,13 @@ public abstract class CommonControl implements Control {
 			idAsRound = process.idAsRound ? 1 : 0;
 			messageCount += process.messageCount;
 			roundCount += process.proposer.round; // TODO: choose and find the real number of rounds.
+			if (chosenValue == NULL) {
+				chosenValue = process.learner.value;
+			} else {
+				if (chosenValue != process.learner.value) {
+					throw new RuntimeException("Learners values do not match !");
+				}
+			}
 		}
 		roundCount /= size;
 		time = CommonState.getTime();
