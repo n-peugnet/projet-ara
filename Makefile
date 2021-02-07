@@ -50,7 +50,6 @@ run: java
 		$(PAXOS_ARGS)
 
 clean: $(SUBDIRS) cleandata
-	rm -rf $(EXE)
 	rm -rf $(BIN)
 	rm -rf *.png
 	$(MAKE) -C $(PDF) $@
