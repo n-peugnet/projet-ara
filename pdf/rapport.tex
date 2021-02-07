@@ -82,15 +82,16 @@ public int backoffDelay() {
 	return (backoff + CommonState.r.nextInt(backoff)) * coef * retry;
 }
 \end{lstlisting}
-
 Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation du temps de \emph{backoff} à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
 Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
 
-\subsection{Résultats}
+\begin{figure}[hb]
+    \centering
+    \includegraphics[width=1\textwidth]{NoeudsMessages.png} % changer ici l'image
+    \caption{Nombre de messages en fonction du nombre de nœuds}
+    \label{fig:message-node}
+\end{figure}
 
-Les courbes ont été tracées pour plusieurs exécutions de chaque simulation avec des valeurs de \emph{seed} à chaque fois différentes.
-Nous avons hésité entre tracer une moyenne des résultats et tracer chaque courbe.
-N'ayant pas eu l'occasion de tester le rendu d'une courbe moyenne nous avons décidé d'afficher les graphiques ici présents.
 
 %%%%%%%%%%%%%%%%%%%% temps en fonction du nombre de noeuds
 \begin{figure}[ht]
@@ -104,12 +105,20 @@ N'ayant pas eu l'occasion de tester le rendu d'une courbe moyenne nous avons dé
 \begin{figure}[ht]
     \centering
     \includegraphics[width=1\textwidth]{NoeudsRounds.png} % changer ici l'image
-    \caption{Numéro de round en fonction du nombre de nœuds}
+    \caption{Numéro de round maximum en fonction du nombre de nœuds}
     \label{fig:round-node}
 \end{figure}
 
+\subsection{Résultats}
+
+Les courbes ont été tracées pour plusieurs exécutions de chaque simulation avec des valeurs de \emph{seed} à chaque fois différentes.
+Nous avons hésité entre tracer une moyenne des résultats et tracer chaque courbe.
+N'ayant pas eu l'occasion de tester le rendu d'une courbe moyenne nous avons décidé d'afficher les graphiques ici présents.
+
+
+
 On remarque que, comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
-Le fait de favoriser certains nœuds provoque ainsi une réduction du temps d'exécution d'une itération (Figure \ref{fig:time-node}).
+Le fait de favoriser certains nœuds provoque ainsi une réduction du nombre de messages (Figure \ref{fig:message-node}) et du temps d'exécution d'une itération (Figure \ref{fig:time-node}).
 La Figure \ref{fig:round-node} n'est pas très parlante car on n'y voit pas la courbe orange. Elle est en fait à zéro sur l'ensemble des exécutions.
 Ce résultat signifie que toutes les exécutions se sont finies en un seul round.
 En outre, on ne peut pas le voir sur ces graphiques, mais le dernier nœud est systématiquement élu leader.
