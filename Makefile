@@ -43,7 +43,7 @@ LOG     = $(PLOTS:%=%.log)
 
 all: pdf java
 
-pdf: plots
+pdf:
 	$(MAKE) -C $(PDF) $@
 
 java: $(BINS)
