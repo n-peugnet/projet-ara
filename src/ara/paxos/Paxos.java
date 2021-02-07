@@ -9,7 +9,6 @@ import ara.paxos.Messages.Promise;
 import ara.paxos.Messages.Accept;
 import ara.paxos.Messages.Accepted;
 import ara.paxos.Messages.Reject;
-import peersim.core.CommonState;
 
 import java.util.List;
 
