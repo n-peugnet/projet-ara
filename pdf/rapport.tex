@@ -14,7 +14,7 @@
 % Source code style
 \usepackage{listings}
 \lstset{
-	basicstyle=\ttfamily,         % sets font style for the code
+	basicstyle=\footnotesize\ttfamily, % sets font style for the code
 	frame=single,                 % adds a frame around the code
 	showstringspaces=false,       % underline spaces within strings
 	tabsize=4,                    % sets default tabsize to 2 spaces
@@ -44,7 +44,7 @@
 
 \tableofcontents
 
-\section{Introduction}
+\section*{Introduction}
 
 Le but de ce projet est de d'étudier l'efficacité de l'algorithme de Paxos en faisant varier un certain nombre de paramètres.
 La première chose à faire a été de coder l'algorithme à l'aide d'un simulateur afin de pouvoir lancer plusieurs expérimentations.
@@ -59,9 +59,50 @@ Les valeurs prises en compte pour quantifier cette efficacité sont :
 
 \begin{enumerate}
 	\item Le \textbf{temps de convergence} : le temps nécessaire au protocole pour que tous les nœuds reconnaissent le même leader.
-	\item Le \textbf{nombre de rounds} nécessaires pour atteindre une majorité, c’est-à-dire pour que le consensus soit atteint
-	\item Le \textbf{nombre de messages} émis
+	\item Le \textbf{nombre de rounds} nécessaires pour atteindre une majorité, c’est-à-dire pour que le consensus soit atteint.
+	\item Le \textbf{nombre de messages} émis.
 \end{enumerate}
+
+Et les paramètres en fonctions desquels on veut évaluer ces critères sont :
+
+\begin{enumerate}
+	\item Le \textbf{nombre de nœuds} dans le système.
+	\item L'\textbf{activation/désactivation} et \textbf{valeur d'incrément d’un temps de \emph{backoff}}.
+	\item La \textbf{valeur du round initial} :
+	\begin{itemize}
+		\item Une version avec la valeur 0 (Paxos original).
+		\item Une version avec l’identifiant du nœud.
+	\end{itemize}
+\end{enumerate}
+
+En ce qui concerne la valeur d'incrément du temps de \emph{backoff} nous avons choisi d'utiliser le code suivant :
+
+\begin{lstlisting}[language=java]
+public int backoffDelay() {
+	return (backoff + CommonState.r.nextInt(backoff)) * coef * retry;
+}
+\end{lstlisting}
+
+Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
+Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds utilisent une valeur trop proche à chaque nouvel essai.
+
+
+
+\section{Étude expérimentale 2 : Multi-Paxos séquentiel}
+
+Cette Étude n'a malheureusement pas pu être menée à terme.
+Un début de code a été produit mais n'assurant pas les propriétés de sureté, il n'a pas été possible de l'utiliser à des fins d'expérimentations.
+
+\section{Étude expérimentale 3 : Réduire le coût en messages}
+
+\section*{Conclusion}
+
+\begin{quotation}
+	"Rien ne sert de courir ; il faut partir à point."
+
+	--- \emph{Jean de la Fontaine}
+\end{quotation}
+
 
 
 
@@ -71,15 +112,6 @@ Les valeurs prises en compte pour quantifier cette efficacité sont :
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Tout ce bloc est une démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement variable en fonction du temps.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\textwidth]{test}
-    \caption{Un joli graphique}
-    \label{fig:test}
-\end{figure}
-
 \section{Démo \LaTeX}
 
 Tout d'abord faisons un paragraphe, pour ça il suffit de sauter 2 lignes.
@@ -128,18 +160,17 @@ Et tant qu'on y est, une petite liste\footnote{Mais en vrai le meilleur truc c'e
 Pour vraiment apprendre comment fonctionne \LaTeX j'ai trouvé un tutoriel
 \footnote{\raggedright\url{https://zestedesavoir.com/tutoriels/826/introduction-a-latex/1319_creer-vos-premiers-documents/5241_premiers-codes/}}
 vraiment sympa, mais je ne pense pas qu'on ait le temps haha.
+
+Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement variable en fonction du temps.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{test}
+    \caption{Un joli graphique}
+    \label{fig:test}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Fin du bloc de démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-
-
-
-
-
 
 
 
