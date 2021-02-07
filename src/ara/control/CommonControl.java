@@ -46,7 +46,7 @@ public abstract class CommonControl implements Control {
 		roundCount /= size;
 		time = CommonState.getTime();
 
-		try (Writer file = new FileWriter("ex1backoff.dat", true)) {
+		try (Writer file = new FileWriter(getFileName(), true)) {
 			writeline(file);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -55,6 +55,6 @@ public abstract class CommonControl implements Control {
 	}
 
 	public abstract void writeline(Writer file) throws IOException;
-	public abstract String getFileNem();
+	public abstract String getFileName();
 
 }

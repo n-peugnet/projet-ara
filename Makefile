@@ -74,6 +74,7 @@ $(IMGS): %.png: %.dat java
 
 %.dat: PEERSIM_PROPERTIES = $*.properties
 
+.PRECIOUS: %.dat
 ex1nodes.dat: %.dat: java
 	rm -rf $*.log
 	for idAsRound in true false; do \
@@ -104,5 +105,5 @@ $(BIN)/%.class: $(SRC)/%.java | $(BIN)
 $(BIN):
 	mkdir bin
 
-%:
+.env:
 	touch $@

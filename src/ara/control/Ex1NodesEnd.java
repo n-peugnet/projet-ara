@@ -15,7 +15,7 @@ public class Ex1NodesEnd extends CommonControl {
 	}
 
 	@Override
-	public String getFileNem() {
+	public String getFileName() {
 		return "ex1nodes.dat";
 	}
 
