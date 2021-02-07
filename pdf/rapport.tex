@@ -14,7 +14,7 @@
 % Source code style
 \usepackage{listings}
 \lstset{
-	basicstyle=\ttfamily,         % sets font style for the code
+	basicstyle=\footnotesize\ttfamily, % sets font style for the code
 	frame=single,                 % adds a frame around the code
 	showstringspaces=false,       % underline spaces within strings
 	tabsize=4,                    % sets default tabsize to 2 spaces
@@ -44,13 +44,13 @@
 
 \tableofcontents
 
-\section{Introduction}
+\section*{Introduction}
 
 Le but de ce projet est de d'étudier l'efficacité de l'algorithme de Paxos en faisant varier un certain nombre de paramètres.
 La première chose à faire a été de coder l'algorithme à l'aide d'un simulateur afin de pouvoir lancer plusieurs expérimentations.
 Nous avons utilisé PPI\footnote{\url{https://github.com/PolyProcessInterface/ppi}} pour cette tâche,
 car cette API permet de lancer le code soit sur le simulateur Peersim soit via MPI et parce que réutiliser un projet réalisé par le passé était plus motivant pour au moins l'un de nous deux.
-Ce n'était pas une si bonne idée que ça.
+Ce n'était, comme on pouvait s'en douter, pas une si bonne idée que ça.
 
 \section{Étude expérimentale 1}
 
@@ -59,9 +59,63 @@ Les valeurs prises en compte pour quantifier cette efficacité sont :
 
 \begin{enumerate}
 	\item Le \textbf{temps de convergence} : le temps nécessaire au protocole pour que tous les nœuds reconnaissent le même leader.
-	\item Le \textbf{nombre de rounds} nécessaires pour atteindre une majorité, c’est-à-dire pour que le consensus soit atteint
-	\item Le \textbf{nombre de messages} émis
+	\item Le \textbf{nombre de rounds} nécessaires pour atteindre une majorité, c’est-à-dire pour que le consensus soit atteint.
+	\item Le \textbf{nombre de messages} émis.
 \end{enumerate}
+
+Et les paramètres en fonctions desquels on veut évaluer ces critères sont :
+
+\begin{enumerate}
+	\item Le \textbf{nombre de nœuds} dans le système.
+	\item L'\textbf{activation/désactivation} et \textbf{valeur d'incrément d’un temps de \emph{backoff}}.
+	\item La \textbf{valeur du round initial} :
+	\begin{itemize}
+		\item Une version avec la valeur 0 (Paxos original).
+		\item Une version avec l’identifiant du nœud.
+	\end{itemize}
+\end{enumerate}
+
+En ce qui concerne la valeur d'incrément du temps de \emph{backoff} nous avons choisi d'utiliser le code suivant :
+
+\begin{lstlisting}[language=java]
+public int backoffDelay() {
+	return (backoff + CommonState.r.nextInt(backoff)) * coef * retry;
+}
+\end{lstlisting}
+
+Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation du temps de \emph{backoff} à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
+Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% Ici il faut des joulis graphiques %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+On remarque que comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
+Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages.
+
+
+
+
+
+\section{Étude expérimentale 2 : Multi-Paxos séquentiel}
+
+Cette étude n'a malheureusement pas pu être menée à terme.
+Un début de code a été produit mais n'assurant pas les propriétés de sureté, il n'a pas été possible de l'utiliser à des fins d'expérimentations.
+
+\section{Étude expérimentale 3 : Réduire le coût en messages}
+
+Une fois encore, nous n'avons pas eu la possibilité de réaliser cette étude, car nous n'avons pas produit de code fonctionnel.
+Cependant une idée a été retenue.
+
+\section*{Conclusion}
+
+\begin{quotation}
+	"Rien ne sert de courir ; il faut partir à point."
+
+	--- \emph{Jean de la Fontaine}
+\end{quotation}
+
 
 
 
@@ -71,6 +125,8 @@ Les valeurs prises en compte pour quantifier cette efficacité sont :
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Tout ce bloc est une démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Démo \LaTeX}
+
 Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement variable en fonction du temps.
 
 \begin{figure}[ht]
@@ -80,66 +136,7 @@ Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement 
     \label{fig:test}
 \end{figure}
 
-\section{Démo \LaTeX}
-
-Tout d'abord faisons un paragraphe, pour ça il suffit de sauter 2 lignes.
-1 seul saut de ligne équivaut à un espace (comme en md).
-Il est donc \emph{préférable} de sauter une ligne à chaque phrase.
-De cette manière \lstinline{git} peut plus efficacement suivre les modifications.
-On remarque aussi que \LaTeX ajoute tout seul les espaces insécables avant les double ponctuations en mode FR, ce qui est cool !
-
-Il est possible de mettre un mot en \emph{emphase}, on voit dans l'exemple suivant en quoi c'est intéressant.
-\textit{Dans cette phrase, un mot est \emph{particulièrement} important}.
-Oui et on peut mettre du \textbf{texte en \emph{gras} aussi.}
-
-Mais bon en vrai il y a quand même des trucs un peu relou.
-Style le fait de devoir mettre un \lstinline{\} devant une bonne partie des caractères spéciaux.
-Voilà un petit tableau (incomplet) des caractères réservés qu'il faut \emph{escaper} :
-
-\begin{tabular}{ c l }
-	Caractère & Escaping \\
-	\hline
-	\{ & \verb|\{| \\
-	\} & \verb|\}| \\
-	\% & \verb|\%| \\
-	\$ & \verb|\$| \\
-	\& & \verb|\&| \\
-	\# & \verb|\#| \\
-	\_ & \verb|\_| \\
-	\textbackslash & \verb|\textbackslash|
-\end{tabular}
-
-\newpage
-Un petit bloc de code parce que quand même, on est des développeurs quoi.
-\begin{lstlisting}[language=java]
-int v = 42;
-// The main
-void main() {
-	System.out.println("hello world!");
-}
-\end{lstlisting}
-
-Et tant qu'on y est, une petite liste\footnote{Mais en vrai le meilleur truc c'est vraiment les footnotes} :
-\begin{itemize}
-	\item élément 1
-	\item élément 2
-\end{itemize}
-
-Pour vraiment apprendre comment fonctionne \LaTeX j'ai trouvé un tutoriel
-\footnote{\raggedright\url{https://zestedesavoir.com/tutoriels/826/introduction-a-latex/1319_creer-vos-premiers-documents/5241_premiers-codes/}}
-vraiment sympa, mais je ne pense pas qu'on ait le temps haha.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Fin du bloc de démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-
-
-
-
-
 
 
 
