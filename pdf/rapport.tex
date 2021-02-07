@@ -86,13 +86,25 @@ public int backoffDelay() {
 Bien que ne permettant pas de faire d'autres courbes que des droites, cette méthode permet de tester différentes valeurs d'incrément ainsi que l'activation et désactivation du temps de \emph{backoff} à l'aide des deux paramètres \lstinline{backoff} et \lstinline{coef}.
 Un nombre aléatoire est ajouté à ce délai afin d'éviter que tous les nœuds n'utilisent des valeurs trop proches l'une de l'autre à chaque nouvel essai.
 
+%%%%%%%%%%%%%%%%%%%% temps en fonction du nombre de noeuds
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{test} % changer ici l'image
+    \caption{Temps d'exécution en fonction du nombre de nœuds}
+    \label{fig:time-node}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%% Ici il faut des joulis graphiques %%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% nombre de round en fonction du nombre de noeuds
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{test} % changer ici l'image
+    \caption{Nombre de rounds en fonction du nombre de nœuds}
+    \label{fig:round-node}
+\end{figure}
 
 On remarque que, comme prévu, l'utilisation de l'identifiant du nœud comme valeur de round initial donne plus de chances aux nœuds ayant un grand identifiant.
-On peut en effet voir que l'algorithme se termine presque à chaque fois en un seul round et que le leader est systématiquement le dernier nœud.
+Le fait de favoriser certains nœuds provoque ainsi une réduction du temps d'exécution d'une itération (Figure \ref{fig:time-node}).
+On peut en effet voir que l'algorithme se termine presque à chaque fois en un seul round (Figure \ref{fig:round-node}) et que le leader est systématiquement le dernier nœud.
 
 Cette propriété permet donc d'arriver plus rapidement à un consensus et avec beaucoup moins d'envois de messages,
 au détriment de l'égalité entre les nœuds.
@@ -128,24 +140,6 @@ Finalement, de ce projet, nous retiendrons principalement la citation suivante :
 
 
 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Tout ce bloc est une démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Démo \LaTeX}
-
-Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement variable en fonction du temps.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=1\textwidth]{test}
-    \caption{Un joli graphique}
-    \label{fig:test}
-\end{figure}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Fin du bloc de démo à retirer plus tard %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
