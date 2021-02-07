@@ -52,7 +52,11 @@ public abstract class CommonControl implements Control {
 			backoffCoef = process.proposer.backoffCoef;
 			retry = process.proposer.maxRetry;
 			messageCount += process.messageCount;
-			roundCount += process.proposer.round - infra.getId(); // TODO: choose and find the real number of rounds.
+			roundCount += process.proposer.round; // TODO: choose and find the real number of rounds.
+			// Normalise le compteur du nombre de round si l'id a été utilisé comme valeur en retranchant d'autant.
+			if (idAsRound == 1) {
+				roundCount -= infra.getId();
+			}
 			if (chosenValue == NULL) {
 				chosenValue = process.learner.value;
 			} else {
