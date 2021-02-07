@@ -30,6 +30,10 @@
 \usepackage[hyphens]{url}
 \usepackage[hidelinks]{hyperref}
 
+% Graphics
+\usepackage{graphicx}
+\graphicspath{ {../} }
+
 \title{Projet ARA : Paxos}
 \date{Février 2021}
 \author{Sylvain Joube, Nicolas Peugnet}
@@ -58,6 +62,15 @@ Les valeurs prises en compte pour quantifier cette efficacité sont :
 	\item Le \textbf{nombre de rounds} nécessaires pour atteindre une majorité, c’est-à-dire pour que le consensus soit atteint
 	\item Le \textbf{nombre de messages} émis
 \end{enumerate}
+
+Dans la Figure \ref{fig:test} on remarque que l'humeur de Nicolas est fortement variable en fonction du temps.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{test}
+    \caption{Un joli graphique}
+    \label{fig:test}
+\end{figure}
 
 
 
